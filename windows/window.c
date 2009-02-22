@@ -203,6 +203,8 @@ static int compose_state = 0;
 
 static UINT wm_mousewheel = WM_MOUSEWHEEL;
 
+static void ExtTextOutW2 (HDC, int, int, UINT, const RECT *, WCHAR *, UINT, const int *, int);
+
 /* Dummy routine, only required in plink. */
 void ldisc_update(void *frontend, int echo, int edit)
 {
@@ -327,6 +329,7 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
     sk_init();
 
     InitCommonControls();
+    l10n (hinst);
 
     /* Ensure a Maximize setting in Explorer doesn't maximise the
      * config box. */
@@ -1326,6 +1329,84 @@ debug(("\n           rect: [%d,%d %d,%d]\n", newrc.left, newrc.top, newrc.right,
 debug(("general_textout: done, xn=%d\n", xn));
 #endif
     assert(xn - x >= lprc->right - lprc->left);
+}
+
+static void general_textout2(HDC hdc, int x, int y, CONST RECT *lprc,
+			    unsigned short *lpString, UINT cbCount,
+			    CONST INT *lpDx, int opaque, int wide, int iso2022)
+{
+    int i, j, xp, xn;
+    RECT newrc;
+
+#ifdef FIXME_REMOVE_BEFORE_CHECKIN
+int k;
+debug(("general_textout: %d,%d", x, y));
+for(k=0;k<cbCount;k++)debug((" U+%04X", lpString[k]));
+debug(("\n           rect: [%d,%d %d,%d]", lprc->left, lprc->top, lprc->right, lprc->bottom));
+debug(("\n"));
+#endif
+
+    xp = xn = x;
+
+    for (i = 0; i < (int)cbCount ;) {
+	int rtl = is_rtl(lpString[i]);
+
+	xn += lpDx[i];
+
+	for (j = i+1; j < (int)cbCount; j++) {
+	    if (rtl != is_rtl(lpString[j]))
+		break;
+	    xn += lpDx[j];
+	}
+
+	/*
+	 * Now [i,j) indicates a maximal substring of lpString
+	 * which should be displayed using the same textout
+	 * function.
+	 */
+	if (rtl) {
+	    newrc.left = lprc->left + xp - x;
+	    newrc.right = lprc->left + xn - x;
+	    newrc.top = lprc->top;
+	    newrc.bottom = lprc->bottom;
+#ifdef FIXME_REMOVE_BEFORE_CHECKIN
+{
+int k;
+debug(("  exact_textout: %d,%d", xp, y));
+for(k=0;k<j-i;k++)debug((" U+%04X", lpString[i+k]));
+debug(("\n           rect: [%d,%d %d,%d]\n", newrc.left, newrc.top, newrc.right, newrc.bottom));
+}
+#endif
+	    exact_textout(hdc, xp, y, &newrc, lpString+i, j-i, lpDx+i, opaque);
+	} else {
+#ifdef FIXME_REMOVE_BEFORE_CHECKIN
+{
+int k;
+debug(("  ExtTextOut   : %d,%d", xp, y));
+for(k=0;k<j-i;k++)debug((" U+%04X", lpString[i+k]));
+debug(("\n           rect: [%d,%d %d,%d]\n", newrc.left, newrc.top, newrc.right, newrc.bottom));
+}
+#endif
+	    newrc.left = lprc->left + xp - x;
+	    newrc.right = lprc->left + xn - x;
+	    newrc.top = lprc->top;
+	    newrc.bottom = lprc->bottom;
+	  if(!iso2022)
+	    ExtTextOutW(hdc, xp, y, ETO_CLIPPED | (opaque ? ETO_OPAQUE : 0),
+			&newrc, lpString+i, j-i, lpDx+i);
+	  else
+	    ExtTextOutW2(hdc, xp, y, ETO_CLIPPED | (opaque ? ETO_OPAQUE : 0),
+			&newrc, lpString+i, j-i, lpDx+i, wide);
+	}
+
+	i = j;
+	xp = xn;
+    }
+
+#ifdef FIXME_REMOVE_BEFORE_CHECKIN
+debug(("general_textout: done, xn=%d\n", xn));
+#endif
+    assert(xn - x == lprc->right - lprc->left);
 }
 
 /*
@@ -2880,10 +2961,10 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 	    int len;
 
 	    if (wParam == VK_PROCESSKEY) { /* IME PROCESS key */
-		if (message == WM_KEYDOWN) {
+		if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN) {
 		    MSG m;
 		    m.hwnd = hwnd;
-		    m.message = WM_KEYDOWN;
+		    m.message = message;
 		    m.wParam = wParam;
 		    m.lParam = lParam & 0xdfff;
 		    TranslateMessage(&m);
@@ -3333,15 +3414,15 @@ void do_text_internal(Context ctx, int x, int y, wchar_t *text, int len,
 	if (nlen <= 0)
 	    return;		       /* Eeek! */
 
-	ExtTextOutW(hdc, x,
+	ExtTextOutW2(hdc, x,
 		    y - font_height * (lattr == LATTR_BOT) + text_adjust,
-		    ETO_CLIPPED | ETO_OPAQUE, &line_box, uni_buf, nlen, IpDx);
+		    ETO_CLIPPED | ETO_OPAQUE, &line_box, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
 	if (bold_mode == BOLD_SHADOW && (attr & ATTR_BOLD)) {
 	    SetBkMode(hdc, TRANSPARENT);
-	    ExtTextOutW(hdc, x - 1,
+	    ExtTextOutW2(hdc, x - 1,
 			y - font_height * (lattr ==
 					   LATTR_BOT) + text_adjust,
-			ETO_CLIPPED, &line_box, uni_buf, nlen, IpDx);
+			ETO_CLIPPED, &line_box, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
 	}
 
 	IpDx[0] = -1;
@@ -3391,16 +3472,16 @@ void do_text_internal(Context ctx, int x, int y, wchar_t *text, int len,
 	    wbuf[i] = text[i];
 
 	/* print Glyphs as they are, without Windows' Shaping*/
-	general_textout(hdc, x, y - font_height * (lattr == LATTR_BOT) + text_adjust,
-			&line_box, wbuf, len, IpDx, !(attr & TATTR_COMBINING));
+	general_textout2(hdc, x, y - font_height * (lattr == LATTR_BOT) + text_adjust,
+			&line_box, wbuf, len, IpDx, !(attr & TATTR_COMBINING), !!(attr & ATTR_WIDE), in_utf (term) && term->ucsdata->iso2022);
 
 	/* And the shadow bold hack. */
 	if (bold_mode == BOLD_SHADOW && (attr & ATTR_BOLD)) {
 	    SetBkMode(hdc, TRANSPARENT);
-	    ExtTextOutW(hdc, x - 1,
+	    ExtTextOutW2(hdc, x - 1,
 			y - font_height * (lattr ==
 					   LATTR_BOT) + text_adjust,
-			ETO_CLIPPED, &line_box, wbuf, len, IpDx);
+			ETO_CLIPPED, &line_box, wbuf, len, IpDx, !!(attr & ATTR_WIDE));
 	}
     }
     if (lattr != LATTR_TOP && (force_manual_underline ||
@@ -5459,4 +5540,119 @@ void agent_schedule_callback(void (*callback)(void *, void *, int),
     c->data = data;
     c->len = len;
     PostMessage(hwnd, WM_AGENT_CALLBACK, 0, (LPARAM)c);
+}
+
+/* (opt & ETO_CLIPPED) must not be zero. */
+static void
+ExtTextOutW2 (HDC hdc, int x, int y, UINT opt, const RECT *rc,
+	      WCHAR *str, UINT cnt, const int *dx, int wide)
+{
+  unsigned int i;
+  SIZE s;
+  RECT rc2;
+  int f;
+  int w95;
+  LONG cx2;
+  extern int iso2022_win95flag;
+
+  f = 0;
+  rc2 = *rc;
+  w95 = wide ? iso2022_win95flag : 0;
+  while (cnt)
+    {
+      cx2 = 0;
+      for (i = 0 ; i < cnt ; i++)
+	{
+	  GetTextExtentPoint32W (hdc, &str[i], 1, &s);
+	  if ((s.cx > *dx ||
+	       s.cx * 4 < *dx * 3) != f)
+	    break;
+	  if (f && cx2 != s.cx)
+	    {
+	      if (i)
+		break;
+	      cx2 = s.cx;
+	    }
+	  if ((w95 && !f) || (0x590 <= str[i] && str[i] <= 0x5ff))
+	    {
+	      i++;
+	      break;
+	    }
+	}
+      if (i)
+	{
+	  cnt -= i;
+	  rc2.right = cnt ? rc2.left + *dx * i : rc->right;
+	  if (f)
+	    {
+	      HDC dc;
+	      HBITMAP bm, oldbm;
+	      RECT rc3;
+
+	      GetTextExtentPoint32W (hdc, str, i, &s);
+	      rc3.left = rc3.top = 0;
+	      rc3.right = s.cx;
+	      rc3.bottom = s.cy;
+	      dc = CreateCompatibleDC (hdc);
+	      bm = CreateBitmap (max (s.cx, *dx * i),
+				 s.cy, 1, 1, 0);
+	      oldbm = SelectObject (dc, bm);
+	      SelectObject (dc, GetCurrentObject (hdc, OBJ_FONT));
+	      SetTextAlign (dc, TA_TOP | TA_LEFT | TA_NOUPDATECP);
+	      SetBkColor (dc, RGB (255, 255, 255));
+	      SetTextColor (dc, RGB (0, 0, 0));
+	      SetBkMode (dc, OPAQUE);
+	      ExtTextOutW (dc, 0, 0, ETO_OPAQUE, &rc3, str, i, 0);
+	      SetStretchBltMode (dc, BLACKONWHITE);
+	      StretchBlt (dc, 0, 0, *dx * i, s.cy,
+			  dc, 0, 0, s.cx, s.cy, SRCCOPY);
+	      {
+		HDC dc2;
+		HBITMAP bm2, oldbm2;
+
+		dc2 = CreateCompatibleDC (hdc);
+		bm2 = CreateCompatibleBitmap (hdc,
+					      rc2.right - rc2.left,
+					      rc2.bottom - rc2.top);
+		oldbm2 = SelectObject (dc2, bm2);
+		if (opt & ETO_OPAQUE)
+		  {
+		    RECT a;
+
+		    SetRect (&a, 0, 0, rc2.right - rc2.left,
+			     rc2.bottom - rc2.top);
+		    SetBkColor (dc2, GetBkColor (hdc));
+		    ExtTextOut (dc2, 0, 0, ETO_OPAQUE, &a, "", 0, 0);
+		  }
+		else
+		  BitBlt (dc2, 0, 0, rc2.right - rc2.left,
+			  rc2.bottom - rc2.top, hdc, rc2.left, rc2.top,
+			  SRCCOPY);
+		SetTextColor (dc2, RGB (0, 0, 0));
+		SetBkColor (dc2, RGB (255, 255, 255));
+		BitBlt (dc2, x - rc2.left, y - rc2.top, *dx * i,
+			s.cy, dc, 0, 0, SRCAND);
+		SetBkColor (dc2, RGB (0, 0, 0));
+		SetTextColor (dc2, GetTextColor (hdc));
+		BitBlt (dc2, x - rc2.left, y - rc2.top, *dx * i,
+			s.cy, dc, 0, 0, SRCPAINT);
+		BitBlt (hdc, rc2.left, rc2.top, rc2.right - rc2.left,
+			rc2.bottom - rc2.top, dc2, 0, 0,
+			SRCCOPY);
+		SelectObject (dc2, oldbm2);
+		DeleteDC (dc2);
+		DeleteObject (bm2);
+	      }
+	      SelectObject(dc, oldbm);
+	      DeleteDC(dc);
+	      DeleteObject(bm);
+	    }
+	  else
+	    ExtTextOutW (hdc, x, y, opt, &rc2, str, i, dx);
+	  x += *dx * i;
+	  str += i;
+	  rc2.left = rc2.right;
+	}
+      f = !f;
+    }
 }

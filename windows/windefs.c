@@ -10,9 +10,9 @@ FontSpec platform_default_fontspec(const char *name)
 {
     FontSpec ret;
     if (!strcmp(name, "Font")) {
-	strcpy(ret.name, "Courier New");
+	strcpy(ret.name, "Terminal");
 	ret.isbold = 0;
-	ret.charset = ANSI_CHARSET;
+	ret.charset = DEFAULT_CHARSET;
 	ret.height = 10;
     } else {
 	ret.name[0] = '\0';
