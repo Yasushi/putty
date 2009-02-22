@@ -102,6 +102,8 @@ void *open_settings_w(const char *sessionname, char **errmsg)
 	return NULL;
     }
     sfree(p);
+    RegDeleteValue (sesskey, "ISO2022");  /* for compatibility with old patch */
+    RegDeleteValue (sesskey, "ISO2022initstr");
     return (void *) sesskey;
 }
 

@@ -723,8 +723,21 @@ void load_open_settings(void *sesskey, Config *cfg)
      * The empty default for LineCodePage will be converted later
      * into a plausible default for the locale.
      */
-    gpps(sesskey, "LineCodePage", "", cfg->line_codepage,
+    gpps(sesskey, "LineCodePage", "EUC-JP", cfg->line_codepage,
 	 sizeof(cfg->line_codepage));
+    if (!strcmp (cfg->line_codepage, "UTF-8")) {
+	int i;
+	char buf[lenof (cfg->line_codepage)];
+
+	gppi (sesskey, "ISO2022", 0, &i);  /* for compatibility with old patch */
+	if (i) {
+		strcpy (buf, "iso2022 ");
+		gpps (sesskey, "ISO2022initstr", "", &buf[8],
+			sizeof buf - 8 * sizeof buf[0]);
+		if (buf[8]) memcpy (cfg->line_codepage, buf,
+				    sizeof cfg->line_codepage);
+	}
+    }
     gppi(sesskey, "CJKAmbigWide", 0, &cfg->cjk_ambig_wide);
     gppi(sesskey, "UTF8Override", 1, &cfg->utf8_override);
     gpps(sesskey, "Printer", "", cfg->printer, sizeof(cfg->printer));

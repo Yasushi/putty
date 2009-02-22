@@ -143,6 +143,64 @@ struct sesslist {
     char *buffer;		       /* so memory can be freed later */
 };
 
+struct iso2022struct
+{
+  unsigned char buf[100];
+  int buflen, bufoff;
+  struct g
+  {
+    enum
+    {
+      UNKNOWN, UNSUPPORTED, US_ASCII, JISX0201_ROMAN, JISX0201_KATAKANA,
+      JISC6226_1978, JISX0208_1983, JISX0208_1990, JISX0212_1990,
+      JISX0213_1, JISX0213_2, JISX0213_2004_1, MS_KANJI,
+      GB2312_80, CSIC_SET1, CSIC_SET2, CSIC_SET3, CSIC_SET4, CSIC_SET5,
+      CSIC_SET6, CSIC_SET7, KSC5601_1987, BIG5,
+      ISO8859_1, ISO8859_2, ISO8859_3, ISO8859_4, ISO8859_5,
+      ISO8859_6, ISO8859_7, ISO8859_8, ISO8859_9, ISO8859_10,
+      VT100GRAPHICS,
+      ISO646_1973IRV, BS4730, NATS_PRIMARY_FINLAND_SWEDEN,
+      NATS_PRIMARY_DENMARK_NORWAY, DIN66003, NFZ62010_1973,
+      ISO646_ITALIAN, ISO646_SPANISH,
+      UTF8CJK, UTF8NONCJK,
+    } type;
+    int len;
+  } g0, g1, g2, g3, *gl, *gr, *ssl, *ssr, lgr, *usgr, uslgr;
+  int jisx02081990flag;
+  int esc;
+  int width;
+  int lockgr, uslockgr;
+  int ssgr;
+  int transchar;
+  enum {
+    SWITCH_UTF8_NONE,
+    SWITCH_UTF8_TO_UTF8,
+    SWITCH_UTF8_FROM_UTF8,
+  } switch_utf8;
+  unsigned char *ins;
+  unsigned char *insw;
+  int inslen;
+};
+
+#define AUTODETECT_BUFLEN 10
+
+struct iso2022_data {
+  int win95flag;
+  struct iso2022struct rcv, trns;
+  unsigned char initstring[512];
+  struct {
+    int n;
+    struct {
+      int n;
+      struct iso2022_autodetect_jp {
+	int e;
+	unsigned char buf[AUTODETECT_BUFLEN];
+	int buflen;
+      } eucjp, mskanji, utf8cjk;
+    } jp;
+  } autodetect;
+};
+
 struct unicode_data {
     char **uni_tbl;
     int dbcs_screenfont;
@@ -154,6 +212,8 @@ struct unicode_data {
     wchar_t unitab_xterm[256];
     wchar_t unitab_oemcp[256];
     unsigned char unitab_ctrl[256];
+    int iso2022;
+    struct iso2022_data iso2022_data;
 };
 
 #define LGXF_OVR  1		       /* existing logfile overwrite */
@@ -1210,5 +1270,46 @@ long schedule_timer(int ticks, timer_fn_t fn, void *ctx);
 void expire_timer_context(void *ctx);
 int run_timers(long now, long *next);
 void timer_change_notify(long next);
+
+/*
+ * Exports from iso2022.c
+ */
+int xMultiByteToWideChar(UINT, DWORD, LPCSTR, int, LPWSTR, int);
+int xWideCharToMultiByte(UINT, DWORD, LPCWSTR, int, LPSTR, int,
+                         LPCSTR, LPBOOL);
+#define MultiByteToWideChar xMultiByteToWideChar
+#define WideCharToMultiByte xWideCharToMultiByte
+
+int iso2022_init (struct iso2022_data *this, char *p, int mode);
+int iso2022_init_test (char *p);
+void iso2022_transmit (struct iso2022_data *this, unsigned char c);
+void iso2022_put (struct iso2022_data *this, unsigned char c);
+void iso2022_clearesc (struct iso2022_data *this);
+int iso2022_width (struct iso2022_data *this, wchar_t);
+unsigned char iso2022_tgetbuf (struct iso2022_data *this);
+unsigned char iso2022_getbuf (struct iso2022_data *this);
+void iso2022_settranschar (struct iso2022_data *this, int value);
+void iso2022_tbufclear (struct iso2022_data *this);
+int iso2022_tbuflen (struct iso2022_data *this);
+int iso2022_buflen (struct iso2022_data *this);
+void iso2022_autodetect_put (struct iso2022_data *this, unsigned char *buf,
+			     int nchars);
+
+/*
+ * Exports from l10n.c
+ */
+int xMessageBoxA(HWND, LPCSTR, LPCSTR, UINT);
+HWND xCreateWindowExA(DWORD, LPCSTR, LPCSTR, DWORD, int, int,
+                      int, int, HWND, HMENU, HINSTANCE, LPVOID);
+int xDialogBoxParamA(HINSTANCE, LPCSTR, HWND, DLGPROC, LPARAM);
+HWND xCreateDialogParamA(HINSTANCE, LPCSTR, HWND, DLGPROC, LPARAM);
+#define MessageBoxA xMessageBoxA
+#define CreateWindowExA xCreateWindowExA
+#define DialogBoxParamA xDialogBoxParamA
+#define CreateDialogParamA xCreateDialogParamA
+void l10n (HINSTANCE);
+HFONT l10n_getfont (HFONT);
+void l10n_created_window (HWND);
+char *l10n_dupstr (char *);
 
 #endif
