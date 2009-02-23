@@ -1,0 +1,36 @@
+[LangOptions]
+LanguageName=Japanese
+LanguageID=$0411
+LanguageCodePage=0
+
+[CustomMessages]
+
+MyAppName=PuTTYごった煮版
+MyAppVerName=PuTTY 0.59 ごった煮版
+MyVersionDescription=PuTTYごった煮版セットアップ
+MyVersionInfo=0.59 ごった煮版
+PuTTYShortcutName=PuTTY
+PuTTYComment=SSH, Telnet, Rlogin クライアント
+PuTTYManualShortcutName=PuTTY マニュアル
+PuTTYWebSiteShortcutName=PuTTY ウェブサイト
+PSFTPShortcutName=PSFTP
+PSFTPComment=コマンドライン 対話的 SFTP クライアント
+PuTTYgenShortcutName=PuTTYgen
+PuTTYgenComment=PuTTY SSH 鍵生成ユーティリティ
+PageantShortcutName=Pageant
+PageantComment=PuTTY SSH 認証エージェント
+AdditionalIconsGroupDescription=追加のアイコン:
+desktopiconDescription=デスクトップにPuTTYのアイコンを作成
+desktopicon_commonDescription=全てのユーザー
+desktopicon_userDescription=現在のユーザーのみ
+quicklaunchiconDescription=クィックランチにPuTTYのアイコンを追加 (現在のユーザーのみ)
+OtherTasksGroupDescription=その他のタスク:
+associateDescription=.PPKファイル(PuTTY秘密鍵)をPageantとPuTTYgenに関連づける
+PPKTypeDescription=PuTTY秘密鍵ファイル
+PPKEditLabel=編集(&E)
+UninstallStatusMsg=保存したセッション他を削除しています (オプショナル)...
+SaveiniDescription=設定をINIファイルに保存する
+PfwdComponentDescription=pfwd(ポートフォワード専用クライアント)
+PlinkwComponentDescription=plinkw(コンソールウィンドウを表示しないPlink)
+JpnLngComponentDescription=日本語メッセージファイル
+SourceComponentDescription=ソースコード(パッチのみ)

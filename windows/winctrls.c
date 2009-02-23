@@ -192,7 +192,7 @@ void combobox(struct ctlpos *cp, char *text, int staticid, int listid)
     r.top = cp->ypos;
     r.bottom = COMBOHEIGHT * 10;
     doctl(cp, r, "COMBOBOX",
-	  WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL |
+	  WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_AUTOHSCROLL |
 	  CBS_DROPDOWN | CBS_HASSTRINGS, WS_EX_CLIENTEDGE, "", listid);
     cp->ypos += COMBOHEIGHT + GAPBETWEEN;
 }
@@ -1746,6 +1746,8 @@ int winctrl_handle_command(struct dlgparam *dp, UINT msg,
 	return 0;		       /* we have nothing to do */
 
     if (msg == WM_DRAWITEM) {
+	void l10nTextOut (HDC hdc, int x, int y, char *str, int cnt);
+	BOOL l10nGetTextExtentPoint32 (HDC hdc, char *str, int len, LPSIZE s);
 	/*
 	 * Owner-draw request for a panel title.
 	 */
@@ -1756,10 +1758,10 @@ int winctrl_handle_command(struct dlgparam *dp, UINT msg,
 
 	SetMapMode(hdc, MM_TEXT);      /* ensure logical units == pixels */
 
-	GetTextExtentPoint32(hdc, (char *)c->data,
+	l10nGetTextExtentPoint32(hdc, (char *)c->data,
 				 strlen((char *)c->data), &s);
 	DrawEdge(hdc, &r, EDGE_ETCHED, BF_ADJUST | BF_RECT);
-	TextOut(hdc,
+	l10nTextOut(hdc,
 		r.left + (r.right-r.left-s.cx)/2,
 		r.top + (r.bottom-r.top-s.cy)/2,
 		(char *)c->data, strlen((char *)c->data));
@@ -2236,6 +2238,7 @@ void dlg_text_set(union control *ctrl, void *dlg, char const *text)
 
 void dlg_label_change(union control *ctrl, void *dlg, char const *text)
 {
+    BOOL l10nSetDlgItemText(HWND dialog, int id, LPCSTR text);
     struct dlgparam *dp = (struct dlgparam *)dlg;
     struct winctrl *c = dlg_findbyctrl(dp, ctrl);
     char *escaped = NULL;
@@ -2276,7 +2279,7 @@ void dlg_label_change(union control *ctrl, void *dlg, char const *text)
 	break;
     }
     if (escaped) {
-	SetDlgItemText(dp->hwnd, id, escaped);
+	l10nSetDlgItemText(dp->hwnd, id, escaped);
 	sfree(escaped);
     }
 }

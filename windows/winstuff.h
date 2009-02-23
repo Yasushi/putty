@@ -173,6 +173,11 @@ GLOBAL void *logctx;
 			      "All Files (*.*)\0*\0\0\0")
 #define FILTER_WAVE_FILES ("Wave Files (*.wav)\0*.WAV\0" \
 			       "All Files (*.*)\0*\0\0\0")
+#define FILTER_IMAGE_FILES ("Bmp Files (*.bmp)\0*.bmp\0" \
+			       "All Files (*.*)\0*\0\0\0")
+#define FILTER_ICON_FILES ("Icon Files (*.ico)\0*.ico\0" \
+			       "Module Files (*.exe;*.dll)\0*.exe;*.dll\0" \
+			       "All Files (*.*)\0*\0\0\0")
 
 /*
  * On some versions of Windows, it has been known for WM_TIMER to
@@ -447,5 +452,30 @@ void agent_schedule_callback(void (*callback)(void *, void *, int),
  * Exports from winser.c.
  */
 extern Backend serial_backend;
+
+/*
+ * Exports from l10n.c
+ */
+int xMessageBoxA(HWND, LPCSTR, LPCSTR, UINT);
+HWND xCreateWindowExA(DWORD, LPCSTR, LPCSTR, DWORD, int, int,
+                      int, int, HWND, HMENU, HINSTANCE, LPVOID);
+int xDialogBoxParamA(HINSTANCE, LPCSTR, HWND, DLGPROC, LPARAM);
+HWND xCreateDialogParamA(HINSTANCE, LPCSTR, HWND, DLGPROC, LPARAM);
+#define MessageBoxA xMessageBoxA
+#define CreateWindowExA xCreateWindowExA
+#define DialogBoxParamA xDialogBoxParamA
+#define CreateDialogParamA xCreateDialogParamA
+int xsprintf(char*,const char*, ...);
+int xvsnprintf(char*,int,const char*, va_list args);
+int xGetOpenFileNameA(OPENFILENAMEA* ofn);
+int xGetSaveFileNameA(OPENFILENAMEA* ofn);
+#define sprintf xsprintf
+#ifdef _WINDOWS
+#define _vsnprintf xvsnprintf
+#else//_WINDOWS
+#define vsnprintf xvsnprintf
+#endif//_WINDOWS
+#define GetOpenFileNameA xGetOpenFileNameA
+#define GetSaveFileNameA xGetSaveFileNameA
 
 #endif
