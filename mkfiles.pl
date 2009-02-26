@@ -623,23 +623,23 @@ if (defined $makefiles{'vc'}) {
     print "\n";
     print $makefile_extra{'vc'}->{'end'};
     print "\nclean: tidy\n".
-      "\t-del *.exe\n\n".
+      "\t-del /S /Q *.exe\n\n".
       "tidy:\n".
-      "\t-del *.obj\n".
-      "\t-del *.res\n".
-      "\t-del *.pch\n".
-      "\t-del *.aps\n".
-      "\t-del *.ilk\n".
-      "\t-del *.pdb\n".
-      "\t-del *.rsp\n".
-      "\t-del *.dsp\n".
-      "\t-del *.dsw\n".
-      "\t-del *.ncb\n".
-      "\t-del *.opt\n".
-      "\t-del *.plg\n".
-      "\t-del *.map\n".
-      "\t-del *.idb\n".
-      "\t-del debug.log\n";
+      "\t-del /S /Q *.obj\n".
+      "\t-del /S /Q *.res\n".
+      "\t-del /S /Q *.pch\n".
+      "\t-del /S /Q *.aps\n".
+      "\t-del /S /Q *.ilk\n".
+      "\t-del /S /Q *.pdb\n".
+      "\t-del /S /Q *.rsp\n".
+      "\t-del /S /Q *.dsp\n".
+      "\t-del /S /Q *.dsw\n".
+      "\t-del /S /Q *.ncb\n".
+      "\t-del /S /Q *.opt\n".
+      "\t-del /S /Q *.plg\n".
+      "\t-del /S /Q *.map\n".
+      "\t-del /S /Q *.idb\n".
+      "\t-del /S /Q debug.log\n";
     select STDOUT; close OUT;
 }
 

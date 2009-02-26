@@ -431,6 +431,16 @@ union control *ctrl_checkbox(struct controlset *s, char *label, char shortcut,
     return c;
 }
 
+union control *ctrl_trackbar(struct controlset *s, char *label, char shortcut,
+			     intorptr helpctx, handler_fn handler,
+			     intorptr context)
+{
+    union control *c = ctrl_new(s, CTRL_TRACKBAR, helpctx, handler, context);
+    c->trackbar.label = label ? dupstr(label) : NULL;
+    c->trackbar.shortcut = shortcut;
+    return c;
+}
+
 void ctrl_free(union control *ctrl)
 {
     int i;
@@ -591,5 +601,17 @@ void dlg_stdfontsel_handler(union control *ctrl, void *dlg,
 	dlg_fontsel_set(ctrl, dlg, *(FontSpec *)ATOFFSET(data, offset));
     } else if (event == EVENT_VALCHANGE) {
 	dlg_fontsel_get(ctrl, dlg, (FontSpec *)ATOFFSET(data, offset));
+    }
+}
+
+void dlg_stdtrackbar_handler(union control *ctrl, void *dlg,
+			    void *data, int event)
+{
+    int offset = ctrl->trackbar.context.i;
+
+    if (event == EVENT_REFRESH) {
+	dlg_trackbar_set(ctrl, dlg, *(int *)ATOFFSET(data, offset));
+    } else if (event == EVENT_VALCHANGE) {
+	*(int *)ATOFFSET(data, offset) = dlg_trackbar_get(ctrl,dlg);
     }
 }

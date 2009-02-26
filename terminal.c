@@ -23,6 +23,15 @@
 #define incpos(p) ( (p).x == term->cols ? ((p).x = 0, (p).y++, 1) : ((p).x++, 0) )
 #define decpos(p) ( (p).x == 0 ? ((p).x = term->cols, (p).y--, 1) : ((p).x--, 0) )
 
+#define pserial(p1) (p1.x + p1.y*(term->cols+1))
+#define calchint(p1,p2) \
+if(pserial(p1) < pserial(p2)){ \
+	p1.x += p1.xhint;p2.x += p2.xhint-1; \
+} else if(pserial(p1) > pserial(p2)){ \
+	p2.x += p2.xhint;p1.x += p1.xhint-1; \
+}
+
+
 #define VT52_PLUS
 
 #define CL_ANSIMIN	0x0001	       /* Codes in all ANSI like terminals. */
@@ -5617,7 +5626,7 @@ void term_do_paste(Terminal *term)
 }
 
 void term_mouse(Terminal *term, Mouse_Button braw, Mouse_Button bcooked,
-		Mouse_Action a, int x, int y, int shift, int ctrl, int alt)
+		Mouse_Action a, int x, int y, int shift, int ctrl, int alt,int xhint)
 {
     pos selpoint;
     termline *ldata;
@@ -5661,6 +5670,7 @@ void term_mouse(Terminal *term, Mouse_Button braw, Mouse_Button bcooked,
     }
 
     selpoint.x = x;
+    selpoint.xhint = xhint;
     unlineptr(ldata);
 
     /*
@@ -5802,10 +5812,12 @@ void term_mouse(Terminal *term, Mouse_Button braw, Mouse_Button bcooked,
 		term->selstart = selpoint;
 		term->selend = term->selanchor;
 		incpos(term->selend);
+		calchint(term->selstart,term->selend);
 	    } else {
 		term->selstart = term->selanchor;
 		term->selend = selpoint;
 		incpos(term->selend);
+		calchint(term->selstart,term->selend);
 	    }
 	} else {
 	    /*

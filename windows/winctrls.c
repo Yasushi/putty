@@ -953,6 +953,27 @@ void prefslist(struct prefslist *hdl, struct ctlpos *cp, int lines,
 
 }
 
+void trackbar(struct ctlpos *cp, int id,int iMin,int iMax,int step)
+{
+    RECT r;
+    HWND hwndTrack;
+
+    r.left = GAPBETWEEN;
+    r.top = cp->ypos;
+    r.right = cp->width;
+    r.bottom = PROGBARHEIGHT;
+    cp->ypos += r.bottom + GAPBETWEEN;
+
+    hwndTrack=doctl(cp, r, TRACKBAR_CLASS, WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS  , 0, "", id);
+
+	SendMessage(hwndTrack, TBM_SETRANGE, 
+        (WPARAM) TRUE,                   // redraw flag 
+        (LPARAM) MAKELONG(iMin, iMax));  // min. & max. positions 
+    SendMessage(hwndTrack, TBM_SETPAGESIZE, 
+        0, (LPARAM) 4);                  // new page size 
+
+
+}
 /*
  * Helper function for prefslist: move item in list box.
  */
@@ -1642,6 +1663,15 @@ void winctrl_layout(struct dlgparam *dp, struct winctrls *wc,
 	    sfree(escaped);
 	    data = snew(FontSpec);
 	    break;
+	  case CTRL_TRACKBAR:
+	    num_ids = 1;
+	    escaped = shortcut_escape(ctrl->trackbar.label,
+				      ctrl->trackbar.shortcut);
+	    shortcuts[nshortcuts++] = ctrl->trackbar.shortcut;
+	    trackbar(&pos, base_id, 0,100,1);
+	    shortcuts[nshortcuts++] = 'w';
+	    sfree(escaped);
+	    break;
 	  default:
 	    assert(!"Can't happen");
 	    num_ids = 0;	       /* placate gcc */
@@ -1730,7 +1760,7 @@ int winctrl_handle_command(struct dlgparam *dp, UINT msg,
     if (draglistmsg == WM_NULL)
 	draglistmsg = RegisterWindowMessage (DRAGLISTMSGSTRING);
 
-    if (msg != draglistmsg && msg != WM_COMMAND && msg != WM_DRAWITEM)
+    if (msg != draglistmsg && msg != WM_COMMAND && msg != WM_DRAWITEM && msg != WM_HSCROLL)
 	return 0;
 
     /*
@@ -1738,7 +1768,11 @@ int winctrl_handle_command(struct dlgparam *dp, UINT msg,
      */
     c = NULL;
     for (i = 0; i < dp->nctrltrees; i++) {
+	if(msg != WM_HSCROLL){
 	c = winctrl_findbyid(dp->controltrees[i], LOWORD(wParam));
+	} else {
+	    c = winctrl_findbyid(dp->controltrees[i], GetDlgCtrlID(lParam));
+	}
 	if (c)
 	    break;
     }
@@ -1770,7 +1804,12 @@ int winctrl_handle_command(struct dlgparam *dp, UINT msg,
     }
 
     ctrl = c->ctrl;
+    if(msg != WM_HSCROLL){
     id = LOWORD(wParam) - c->base_id;
+    } else {
+        id = GetDlgCtrlID(lParam) - c->base_id;
+    }
+    
 
     if (!ctrl || !ctrl->generic.handler)
 	return 0;		       /* nothing we can do here */
@@ -1860,6 +1899,9 @@ int winctrl_handle_command(struct dlgparam *dp, UINT msg,
 	    (HIWORD(wParam) == BN_CLICKED ||
 	     HIWORD(wParam) == BN_DOUBLECLICKED)) {
 	    ctrl->generic.handler(ctrl, dp, dp->data, EVENT_ACTION);
+	}
+	if (msg == WM_HSCROLL) {
+	    ctrl->generic.handler(ctrl, dp, dp->data, EVENT_VALCHANGE);
 	}
 	break;
       case CTRL_LISTBOX:
@@ -1970,6 +2012,14 @@ int winctrl_handle_command(struct dlgparam *dp, UINT msg,
 		dlg_fontsel_set(ctrl, dp, fs);
 		ctrl->generic.handler(ctrl, dp, dp->data, EVENT_VALCHANGE);
 	    }
+	}
+	break;
+      case CTRL_TRACKBAR:
+	if (msg == WM_COMMAND &&
+	    (HIWORD(wParam) == BN_SETFOCUS || HIWORD(wParam) == BN_KILLFOCUS))
+	    winctrl_set_focus(ctrl, dp, HIWORD(wParam) == BN_SETFOCUS);
+	if (msg == WM_HSCROLL) {
+	    ctrl->generic.handler(ctrl, dp, dp->data, EVENT_VALCHANGE);
 	}
 	break;
     }
@@ -2327,6 +2377,22 @@ void dlg_fontsel_get(union control *ctrl, void *dlg, FontSpec *fs)
     struct winctrl *c = dlg_findbyctrl(dp, ctrl);
     assert(c && c->ctrl->generic.type == CTRL_FONTSELECT);
     *fs = *(FontSpec *)c->data;	       /* structure copy */
+}
+
+void dlg_trackbar_set(union control *ctrl, void *dlg, int const value)
+{
+    struct dlgparam *dp = (struct dlgparam *)dlg;
+    struct winctrl *c = dlg_findbyctrl(dp, ctrl);
+    assert(c && c->ctrl->generic.type == CTRL_TRACKBAR);
+    SendDlgItemMessage(dp->hwnd, c->base_id, TBM_SETPOS, TRUE,value);  
+}
+
+int dlg_trackbar_get(union control *ctrl, void *dlg)
+{
+    struct dlgparam *dp = (struct dlgparam *)dlg;
+    struct winctrl *c = dlg_findbyctrl(dp, ctrl);
+    assert(c && c->ctrl->generic.type == CTRL_TRACKBAR);
+    return SendDlgItemMessage(dp->hwnd, c->base_id, TBM_GETPOS,0,0);
 }
 
 /*

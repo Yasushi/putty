@@ -113,6 +113,7 @@ typedef HDC Context;
  * PuTTY session.
  */
 GLOBAL HWND hwnd;	/* the main terminal window */
+GLOBAL HWND bkhwnd;	/* the main terminal window */
 GLOBAL HWND logbox;
 
 /*

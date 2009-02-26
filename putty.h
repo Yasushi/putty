@@ -584,6 +584,7 @@ struct config_tag {
     int logomitpass;
     int logomitdata;
     int hide_mouseptr;
+    int withborder;
     int sunken_edge;
     int window_border;
     char answerback[256];
@@ -596,7 +597,7 @@ struct config_tag {
     int system_colour;
     int try_palette;
     int bold_colour;
-    unsigned char colours[22][3];
+    unsigned char colours[23][3];
     /* Selection options */
     int mouse_is_xterm;
     int rect_select;
@@ -643,13 +644,7 @@ struct config_tag {
     FontSpec widefont;
     FontSpec wideboldfont;
     int shadowboldoffset;
-	/* > transparent background patch */
-	int transparent_mode;
-	int shading;
-	int use_alphablend;
-    int stop_when_moving;
-    Filename bgimg_file;
-	/* < */
+    int transparentratio;
     Filename iconfile;
 };
 
@@ -866,7 +861,7 @@ void term_scroll(Terminal *, int, int);
 void term_pwron(Terminal *, int);
 void term_clrsb(Terminal *);
 void term_mouse(Terminal *, Mouse_Button, Mouse_Button, Mouse_Action,
-		int,int,int,int,int);
+		int,int,int,int,int,int);
 void term_key(Terminal *, Key_Sym, wchar_t *, size_t, unsigned int,
 	      unsigned int);
 void term_deselect(Terminal *);

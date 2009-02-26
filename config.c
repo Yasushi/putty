@@ -603,7 +603,7 @@ static void charclass_handler(union control *ctrl, void *dlg,
 }
 
 struct colour_data {
-    union control *listbox, *redit, *gedit, *bedit, *button;
+    union control *listbox, *redit, *gedit, *bedit, *trans, *button;
 };
 
 static const char *const colours[] = {
@@ -617,7 +617,8 @@ static const char *const colours[] = {
     "ANSI Blue", "ANSI Blue Bold",
     "ANSI Magenta", "ANSI Magenta Bold",
     "ANSI Cyan", "ANSI Cyan Bold",
-    "ANSI White", "ANSI White Bold"
+    "ANSI White", "ANSI White Bold",
+    "Text Border"
 };
 
 static void colour_handler(union control *ctrl, void *dlg,
@@ -1469,6 +1470,12 @@ void setup_config_box(struct controlbox *b, int midsession,
 		 dlg_stdeditbox_handler,
 		 I(offsetof(Config,window_border)), I(-1));
 
+    s = ctrl_getset(b, "Window/Appearance", "bordertext",
+		    "Adjust the use of the text border");
+    ctrl_checkbox(s, "Border text", NO_SHORTCUT,
+		  HELPCTX(appearance_bordertext),
+		  dlg_stdcheckbox_handler, I(offsetof(Config,withborder)));
+
     /*
      * The Window/Behaviour panel.
      */
@@ -1611,6 +1618,10 @@ void setup_config_box(struct controlbox *b, int midsession,
 				 colour_handler, P(cd));
     cd->button->generic.column = 1;
     ctrl_columns(s, 1, 100);
+
+    ctrl_text(s, "Set the transparency ratio of background color(100%-0%)",HELPCTX(colours_config));
+    cd->trans = ctrl_trackbar(s, "Transparent", 't', HELPCTX(colours_config),
+				 dlg_stdtrackbar_handler, I(offsetof(Config,transparentratio)));
 
     /*
      * The Connection panel. This doesn't show up if we're in a

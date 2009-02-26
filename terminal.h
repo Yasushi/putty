@@ -17,7 +17,7 @@ struct beeptime {
 };
 
 typedef struct {
-    int y, x;
+    int y, x,yhint,xhint;
 } pos;
 
 #ifdef OPTIMISE_SCROLL

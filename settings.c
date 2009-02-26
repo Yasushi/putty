@@ -385,7 +385,7 @@ void save_open_settings(void *sesskey, int do_host, Config *cfg)
     write_setting_i(sesskey, "Xterm256Colour", cfg->xterm_256_colour);
     write_setting_i(sesskey, "BoldAsColour", cfg->bold_colour);
 
-    for (i = 0; i < 22; i++) {
+    for (i = 0; i < 23; i++) {
 	char buf[20], buf2[30];
 	sprintf(buf, "Colour%d", i);
 	sprintf(buf2, "%d,%d,%d", cfg->colours[i][0],
@@ -444,13 +444,8 @@ void save_open_settings(void *sesskey, int do_host, Config *cfg)
     write_setting_fontspec(sesskey, "WideBoldFont", cfg->wideboldfont);
     write_setting_i(sesskey, "ShadowBold", cfg->shadowbold);
     write_setting_i(sesskey, "ShadowBoldOffset", cfg->shadowboldoffset);
-    /* > transparent background patch */
-    write_setting_i( sesskey, "TransparentMode", cfg->transparent_mode );
-    write_setting_i( sesskey, "Shading", cfg->shading );
-    write_setting_i( sesskey, "UseAlphaBlend", cfg->use_alphablend );
-    write_setting_i( sesskey, "StoppedToDraw", cfg->stop_when_moving );
-    write_setting_filename( sesskey, "BackgroundImageFile", cfg->bgimg_file );
-    /* < */
+    write_setting_i(sesskey, "TransparentRatio", cfg->transparentratio);
+    write_setting_i(sesskey, "WithBorder", cfg->withborder);
     write_setting_s(sesskey, "SerialLine", cfg->serline);
     write_setting_i(sesskey, "SerialSpeed", cfg->serspeed);
     write_setting_i(sesskey, "SerialDataBits", cfg->serdatabits);
@@ -693,13 +688,13 @@ void load_open_settings(void *sesskey, int do_host, Config *cfg)
     gppi(sesskey, "Xterm256Colour", 1, &cfg->xterm_256_colour);
     gppi(sesskey, "BoldAsColour", 1, &cfg->bold_colour);
 
-    for (i = 0; i < 22; i++) {
+    for (i = 0; i < 23; i++) {
 	static const char *const defaults[] = {
 	    "187,187,187", "255,255,255", "0,0,0", "85,85,85", "0,0,0",
 	    "0,255,0", "0,0,0", "85,85,85", "187,0,0", "255,85,85",
 	    "0,187,0", "85,255,85", "187,187,0", "255,255,85", "0,0,187",
 	    "85,85,255", "187,0,187", "255,85,255", "0,187,187",
-	    "85,255,255", "187,187,187", "255,255,255"
+	    "85,255,255", "187,187,187", "255,255,255", "10,10,10"
 	};
 	char buf[20], buf2[30];
 	int c0, c1, c2;
@@ -809,13 +804,8 @@ void load_open_settings(void *sesskey, int do_host, Config *cfg)
     gppfont(sesskey, "WideFont", &cfg->widefont);
     gppfont(sesskey, "WideBoldFont", &cfg->wideboldfont);
     gppi(sesskey, "ShadowBoldOffset", 1, &cfg->shadowboldoffset);
-    /* > transparent background patch */
-    gppi( sesskey, "TransparentMode", 0, &cfg->transparent_mode );
-    gppi( sesskey, "Shading", 0, &cfg->shading );
-    gppi( sesskey, "UseAlphaBlend", 0, &cfg->use_alphablend );
-    gppi( sesskey, "StoppedToDraw", 0, &cfg->stop_when_moving );
-    gppfile( sesskey, "BackgroundImageFile", &cfg->bgimg_file );
-    /* < */
+    gppi(sesskey, "TransparentRatio",100, &cfg->transparentratio);
+    gppi(sesskey, "WithBorder",0, &cfg->withborder);
     gpps(sesskey, "SerialLine", "", cfg->serline, sizeof(cfg->serline));
     gppi(sesskey, "SerialSpeed", 9600, &cfg->serspeed);
     gppi(sesskey, "SerialDataBits", 8, &cfg->serdatabits);

@@ -350,44 +350,6 @@ void win_setup_config_box(struct controlbox *b, HWND *hwndp, int has_help,
 		  HELPCTX(no_help),
 		  dlg_stdcheckbox_handler, I(offsetof(Config,ctrl_tab_switch)));
 
-	/* > transparent background patch */
-    /*
-     * The Window/Wallpaper panel.
-     */
-    ctrl_settitle(b, "Window/Wallpaper", "Options controlling wallpaper");
-
-	s = ctrl_getset( b, "Window/Wallpaper", "wallpaper",
-					 "Transparent background mode" );
-    ctrl_radiobuttons( s, NULL, NO_SHORTCUT, 1,
-					   HELPCTX(no_help),
-					   dlg_stdradiobutton_handler,
-					   I(offsetof(Config, transparent_mode)),
-					   "Disable", 'd', I(0),
-					   "Like transparent xterms", 'x', I(1),
-					   "Use bitmap file", 'b', I(2),
-					   NULL );
-
-	s = ctrl_getset( b, "Window/Wallpaper", "shading",
-					 "Adjust transparency" );
-	ctrl_editbox( s, "Alpha value of bg image (0 - 255) :", 'l', 20,
-				  HELPCTX(no_help),
-				  dlg_stdeditbox_handler, I(offsetof(Config,shading)), I(-1) );
-
-	s = ctrl_getset( b, "Window/Wallpaper", "imgfile",
-					 "Use bitmap file mode settings" );
-	ctrl_checkbox( s, "Use AlphaBlending", 'u',
-				   HELPCTX(no_help),
-				   dlg_stdcheckbox_handler, I(offsetof(Config,use_alphablend)) );
-	ctrl_checkbox( s, "Stopped to draw when moving", 's',
-				   HELPCTX(no_help),
-				   dlg_stdcheckbox_handler, I(offsetof(Config,stop_when_moving)) );
-	ctrl_filesel( s, "Bitmap file used for background :", NO_SHORTCUT,
-				  FILTER_IMAGE_FILES,
-				  FALSE, "Select bitmap file for background",
-				  HELPCTX(no_help),
-				  dlg_stdfilesel_handler, I(offsetof(Config,bgimg_file)) );
-
-	/* < */
 
     /*
      * The icon for Windows title bar

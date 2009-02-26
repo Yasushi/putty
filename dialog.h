@@ -35,7 +35,8 @@ enum {
     CTRL_COLUMNS,		       /* divide window into columns */
     CTRL_FILESELECT,		       /* label plus filename selector */
     CTRL_FONTSELECT,		       /* label plus font selector */
-    CTRL_TABDELAY		       /* see `tabdelay' below */
+    CTRL_TABDELAY,		       /* see `tabdelay' below */
+    CTRL_TRACKBAR		       /* slider coltrol */
 };
 
 /*
@@ -395,6 +396,10 @@ union control {
 	STANDARD_PREFIX;
 	char shortcut;
     } fontselect;
+    struct {
+	STANDARD_PREFIX;
+	char shortcut;
+    } trackbar;
 };
 
 #undef STANDARD_PREFIX
@@ -510,6 +515,9 @@ union control *ctrl_text(struct controlset *, char *text, intorptr helpctx);
 union control *ctrl_checkbox(struct controlset *, char *label, char shortcut,
 			     intorptr helpctx,
 			     handler_fn handler, intorptr context);
+union control *ctrl_trackbar(struct controlset *s, char *label, char shortcut,
+			     intorptr helpctx, handler_fn handler,
+			     intorptr context);
 union control *ctrl_tabdelay(struct controlset *, union control *);
 
 /*
@@ -566,6 +574,9 @@ void dlg_stdfilesel_handler(union control *ctrl, void *dlg,
 void dlg_stdfontsel_handler(union control *ctrl, void *dlg,
 			    void *data, int event);
 
+void dlg_stdtrackbar_handler(union control *ctrl, void *dlg,
+			    void *data, int event);
+
 /*
  * Routines the platform-independent dialog code can call to read
  * and write the values of controls.
@@ -599,6 +610,9 @@ void dlg_filesel_set(union control *ctrl, void *dlg, Filename fn);
 void dlg_filesel_get(union control *ctrl, void *dlg, Filename *fn);
 void dlg_fontsel_set(union control *ctrl, void *dlg, FontSpec fn);
 void dlg_fontsel_get(union control *ctrl, void *dlg, FontSpec *fn);
+void dlg_trackbar_set(union control *ctrl, void *dlg, int const value);
+int dlg_trackbar_get(union control *ctrl, void *dlg);
+
 /*
  * Bracketing a large set of updates in these two functions will
  * cause the front end (if possible) to delay updating the screen

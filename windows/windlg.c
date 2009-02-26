@@ -343,7 +343,7 @@ static void create_controls(HWND hwnd, char *path)
 	/*
 	 * Here we must create the basic standard controls.
 	 */
-	ctlposinit(&cp, hwnd, 3, 3, 235);
+	ctlposinit(&cp, hwnd, 3, 3, 255);
 	wc = &ctrls_base;
 	base_id = IDCX_STDBASE;
     } else {
@@ -430,7 +430,7 @@ static int CALLBACK GenericMainDlgProc(HWND hwnd, UINT msg,
 	    r.left = 3;
 	    r.right = r.left + 95;
 	    r.top = 13;
-	    r.bottom = r.top + 219;
+	    r.bottom = r.top + 239;
 	    MapDialogRect(hwnd, &r);
 	    treeview = CreateWindowEx(WS_EX_CLIENTEDGE, WC_TREEVIEW, "",
 				      WS_CHILD | WS_VISIBLE |
@@ -599,6 +599,14 @@ static int CALLBACK GenericMainDlgProc(HWND hwnd, UINT msg,
 	if (wParam == SIZE_MAXIMIZED)
 	    force_normal(hwnd);
 	return 0;
+      case WM_HSCROLL:
+	if (GetWindowLong(hwnd, GWL_USERDATA) == 1) {
+	    ret = winctrl_handle_command(&dp, msg, wParam, lParam);
+	    if (dp.ended && GetCapture() != hwnd)
+		SaneEndDialog(hwnd, dp.endresult ? 1 : 0);
+	} else
+	    ret = 0;
+	return ret;
 
     }
     return 0;

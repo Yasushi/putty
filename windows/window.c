@@ -2,6 +2,7 @@
  * window.c - the PuTTY(tel) main program, which runs a PuTTY terminal
  * emulator and backend in a window.
  */
+#define _WIN32_WINNT 0x0501
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,6 +20,7 @@
 #include "terminal.h"
 #include "storage.h"
 #include "win_res.h"
+#include <windows.h>
 
 #ifndef NO_MULTIMON
 #include <multimon.h>
@@ -29,11 +31,6 @@
 #include <richedit.h>
 #include <mmsystem.h>
 
-/* > transparent background patch */
-#include <wingdi.h>  /* AlphaBlend */
-/* #include <winbase.h> */  /* OutputDebugString */
-/* #define XTRANS_AVOID_UL_BUG */
-/* < */
 
 /* From MSDN: In the WM_SYSCOMMAND message, the four low-order bits of
  * wParam are used by Windows, and should be masked off, so we shouldn't
@@ -83,6 +80,7 @@
 
 static Mouse_Button translate_button(Mouse_Button button);
 static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+static LRESULT CALLBACK bkWndProc(HWND, UINT, WPARAM, LPARAM);
 static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
 			unsigned char *output);
 static void cfgtopalette(void);
@@ -153,11 +151,6 @@ struct agent_callback {
     int len;
 };
 
-/* > transparent background patch */
-static HBITMAP background_bmp = NULL;
-static void xtrans_paint_bg(HDC, int, int, int, int);
-static void (*xtrans_paint_background)(HDC, int, int, int, int) = xtrans_paint_bg;
-/* < */
 
 #define FONT_NORMAL 0
 #define FONT_BOLD 1
@@ -185,7 +178,7 @@ static enum {
 } und_mode;
 static int descent;
 
-#define NCFGCOLOURS 22
+#define NCFGCOLOURS 23
 #define NEXTCOLOURS 240
 #define NALLCOLOURS (NCFGCOLOURS + NEXTCOLOURS)
 static COLORREF colours[NALLCOLOURS];
@@ -210,229 +203,13 @@ static int compose_state = 0;
 
 static UINT wm_mousewheel = WM_MOUSEWHEEL;
 
+static HBRUSH hbrBk=NULL;
+typedef BOOL __stdcall tagSetLayeredWindowAttributes( HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags );
+tagSetLayeredWindowAttributes *pSetLayeredWindowAttributes;
+HINSTANCE hDllInstUser32;
+
 static void ExtTextOutW2 (HDC, int, int, UINT, const RECT *, WCHAR *, UINT, const int *, int);
 
-/* > transparent background patch */
-void xtrans_paint_bg(HDC hdc, int x, int y, int width, int height)
-{
-    HDC memhdc;
-    HBITMAP defbmp;
-
-    memhdc = CreateCompatibleDC(hdc);
-    defbmp = SelectObject(memhdc, background_bmp);
-
-    BitBlt(hdc, x, y, width, height, memhdc, x, y, SRCCOPY);
-
-    SelectObject(memhdc, defbmp);
-    DeleteDC(memhdc);
-}
-
-void xtrans_paint_bg_fwp(HDC hdc, int x, int y, int width, int height)
-{
-    HDC memhdc;
-    HBITMAP defbmp;
-    POINT point;
-
-    point.x = x;
-    point.y = y;
-    ClientToScreen(hwnd, &point);
-
-    memhdc = CreateCompatibleDC(hdc);
-    defbmp = SelectObject(memhdc, background_bmp);
-
-    BitBlt(hdc, x, y, width, height, memhdc, point.x, point.y, SRCCOPY);
-
-    SelectObject(memhdc, defbmp);
-    DeleteDC(memhdc);
-}
-
-void xtrans_free_background()
-{
-    if (background_bmp) {
-        DeleteObject(background_bmp);
-        background_bmp = NULL;
-    }
-}
-
-void xtrans_daub_with_bgcolor(HDC hdc, int width, int height)
-{
-    HPEN pen, defpen;
-    HBRUSH brush, defbrush;
-
-    pen = CreatePen(PS_SOLID, 0, colours[258]);
-    defpen = SelectObject(hdc, pen);
-    brush = CreateSolidBrush(colours[258]);
-    defbrush = SelectObject(hdc, brush);
-
-    Rectangle(hdc, 0, 0, width, height);
-
-    SelectObject(hdc, defpen);
-    DeleteObject(pen);
-    SelectObject(hdc, defbrush);
-    DeleteObject(brush);
-}
-
-void xtrans_set_background()
-{
-    HDC hdc, memhdc;
-    HBITMAP defbmp;
-
-    BLENDFUNCTION bf = { AC_SRC_OVER, 0, 0, 0 };
-
-    RECT rect, up_rect;
-    int width, height;
-
-    if (cfg.transparent_mode == -1) {
-        cfg.transparent_mode = 1;
-        if (background_bmp)
-            xtrans_free_background();
-    }
-
-    bf.SourceConstantAlpha = (BYTE) cfg.shading;
-
-    GetClientRect(hwnd, &rect);
-
-    InvalidateRect(hwnd, NULL, FALSE);
-    GetUpdateRect(hwnd, &up_rect, FALSE);
-    width = up_rect.right - up_rect.left;
-    height = up_rect.bottom - up_rect.top;
-
-    hdc = GetDC(hwnd);
-    memhdc = CreateCompatibleDC(hdc);
-
-    if (background_bmp == NULL)
-        background_bmp = CreateCompatibleBitmap(hdc, rect.right, rect.bottom);
-
-    defbmp = SelectObject(memhdc, background_bmp);
-
-    xtrans_daub_with_bgcolor(memhdc, rect.right, rect.bottom);
-    PaintDesktop(hdc);
-    AlphaBlend(memhdc, up_rect.left, up_rect.top, width, height,
-               hdc, up_rect.left, up_rect.top, width, height, bf);
-
-    SelectObject(memhdc, defbmp);
-    DeleteDC(memhdc);
-    ReleaseDC(hwnd, hdc);
-}
-
-void xtrans_set_bitmap()
-{
-    if (cfg.bgimg_file.path[0] != '\0') {
-        if (background_bmp)
-            xtrans_free_background();
-        background_bmp = LoadImage(0, cfg.bgimg_file.path,
-                                   IMAGE_BITMAP, 0, 0,
-                                   LR_LOADFROMFILE | LR_DEFAULTSIZE);
-    }
-
-    if (background_bmp == NULL) {
-        cfg.transparent_mode = 0;
-        return;
-    }
-
-    if (cfg.use_alphablend) {
-        HDC hdc, memhdc, memhdc_mask;
-        HBITMAP bmp_mask, defbmp_mask, defbmp;
-        BLENDFUNCTION bf = { AC_SRC_OVER, 0, 0, 0 };
-        int width, height;
-
-        bf.SourceConstantAlpha = (BYTE) cfg.shading;
-
-        hdc = GetDC(hwnd);
-        memhdc = CreateCompatibleDC(hdc);
-        memhdc_mask = CreateCompatibleDC(hdc);
-        defbmp = SelectObject(memhdc, background_bmp);
-        width = GetDeviceCaps(memhdc, HORZRES);
-        height = GetDeviceCaps(memhdc, VERTRES);
-        bmp_mask = CreateCompatibleBitmap(hdc, width, height);
-        ReleaseDC(hwnd, hdc);
-        defbmp_mask = SelectObject(memhdc_mask, bmp_mask);
-
-        xtrans_daub_with_bgcolor(memhdc_mask, width, height);
-        AlphaBlend(memhdc_mask, 0, 0, width, height,
-                   memhdc, 0, 0, width, height, bf);
-
-        SelectObject(memhdc_mask, defbmp_mask);
-        DeleteDC(memhdc_mask);
-        SelectObject(memhdc, defbmp);
-        DeleteDC(memhdc);
-
-        DeleteObject(background_bmp);
-        background_bmp = bmp_mask;
-    }
-}
-
-
-void xtrans_load_bitmap()
-{
-    HANDLE find_handle;
-    WIN32_FIND_DATA find_data;
-
-    char pass[MAX_PATH], shading[4];
-    char *cp;
-    int i;
-
-    if (cfg.transparent_mode == 2 && cfg.bgimg_file.path[0] != '\0')
-        return;
-
-    GetModuleFileName(NULL, pass, MAX_PATH);
-    cp = strrchr(pass, '\\');
-    if (cp == NULL)
-        return;
-    strcpy(++cp, "putty*.bmp");
-
-    find_handle = FindFirstFile(pass, &find_data);
-    if (find_handle == INVALID_HANDLE_VALUE)
-        return;
-    FindClose(find_handle);
-    strcpy(cp, find_data.cFileName);
-
-    /*
-     * putty76.bmp
-     *      ^^ shading value (0 - 255)
-     */
-    if (background_bmp)
-        xtrans_free_background();
-    background_bmp = LoadImage(0, pass, IMAGE_BITMAP, 0, 0,
-                               LR_LOADFROMFILE | LR_DEFAULTSIZE);
-    cfg.transparent_mode = 2;
-
-    cp += 5;
-    for (i = 0; i < 3 && isdigit(*cp); i++, cp++)
-        shading[i] = *cp;
-    shading[i+1] = '\0';
-
-    if (i > 0) {
-        cfg.use_alphablend = 1;
-        cfg.shading = atoi(shading);
-    }
-}
-
-
-void xtrans_init(int reinit)
-{
-    if (reinit)
-        xtrans_load_bitmap();
-
-    if (cfg.shading < 0 || 255 < cfg.shading) {
-        if (cfg.transparent_mode == 1)
-            cfg.transparent_mode = 0;
-        cfg.shading = 0;
-    }
-
-    if (cfg.transparent_mode == 0 && background_bmp)
-        xtrans_free_background();
-
-    if (cfg.transparent_mode == 1) {
-        xtrans_set_background();
-        xtrans_paint_background = xtrans_paint_bg;
-    }
-    else if (cfg.transparent_mode == 2) {
-        xtrans_set_bitmap();
-        xtrans_paint_background = xtrans_paint_bg_fwp;
-    }
-}
-/* < */
 
 /* Dummy routine, only required in plink. */
 void ldisc_update(void *frontend, int echo, int edit)
@@ -556,16 +333,22 @@ extern char inifile[2 * MAX_PATH + 10];
 int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
 {
     WNDCLASS wndclass;
+    WNDCLASS bkwndclass;
     MSG msg;
     int guess_width, guess_height;
 
     hinst = inst;
     hwnd = NULL;
+    bkhwnd = NULL;
     flags = FLAG_VERBOSE | FLAG_INTERACTIVE;
 
     sk_init();
 
     InitCommonControls();
+    hDllInstUser32=LoadLibrary("user32.dll");
+    if( hDllInstUser32 != NULL ){ 
+	pSetLayeredWindowAttributes = (tagSetLayeredWindowAttributes *)GetProcAddress( hDllInstUser32, "SetLayeredWindowAttributes" ); 
+    }
 
     /* Ensure a Maximize setting in Explorer doesn't maximise the
      * config box. */
@@ -889,6 +672,17 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
 	wndclass.lpszClassName = appname;
 
 	RegisterClass(&wndclass);
+	bkwndclass.style = 0;
+	bkwndclass.lpfnWndProc = bkWndProc;
+	bkwndclass.cbClsExtra = 0;
+	bkwndclass.cbWndExtra = 0;
+	bkwndclass.hInstance = inst;
+	bkwndclass.hIcon = NULL;
+	bkwndclass.hCursor = LoadCursor(NULL, IDC_IBEAM);
+	bkwndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+	bkwndclass.lpszMenuName = NULL;
+	bkwndclass.lpszClassName = "BackGround";
+	RegisterClass(&bkwndclass);
     }
 
     memset(&ucsdata, 0, sizeof(ucsdata));
@@ -932,6 +726,22 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
 			      winmode, CW_USEDEFAULT, CW_USEDEFAULT,
 			      guess_width, guess_height,
 			      NULL, NULL, inst, NULL);
+	if(pSetLayeredWindowAttributes){
+		SetWindowLong(hwnd, GWL_EXSTYLE,GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+	}
+    }
+    {
+	RECT rc;
+	GetWindowRect(hwnd,&rc);
+	bkhwnd = CreateWindowEx(WS_EX_LAYERED | WS_EX_NOACTIVATE, "BackGround", "",
+						  0, rc.left, rc.top,
+						  guess_width, guess_height,
+						  NULL, NULL, inst, NULL);
+	if(pSetLayeredWindowAttributes){
+		SetWindowLong(bkhwnd, GWL_EXSTYLE,GetWindowLong(bkhwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+		pSetLayeredWindowAttributes( bkhwnd, 0, (255 * cfg.transparentratio) / 100, LWA_ALPHA );
+	}
+
     }
 
     /*
@@ -944,14 +754,6 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
     logctx = log_init(NULL, &cfg);
     term_provide_logctx(term, logctx);
     term_size(term, cfg.height, cfg.width, cfg.savelines);
-
-	/* > transparent background patch */
-    /* Avoid Unicode line drawing bug. */
-#ifdef XTRANS_AVOID_UL_BUG
-    if (cfg.vtmode == VT_UNICODE && cfg.transparent_mode)
-        cfg.vtmode = VT_POORMAN;
-#endif
-	/* < */
 
     /*
      * Initialise the fonts, simultaneously correcting the guesses
@@ -979,6 +781,8 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
     guess_height = extra_height + font_height * term->rows;
     SetWindowPos(hwnd, NULL, 0, 0, guess_width, guess_height,
 		 SWP_NOMOVE | SWP_NOREDRAW | SWP_NOZORDER);
+    SetWindowPos(bkhwnd, hwnd, 0, 0, guess_width, guess_height,
+		 SWP_NOMOVE | SWP_NOREDRAW);
 
     /*
      * Set up a caret bitmap, with no content.
@@ -1058,6 +862,11 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
 	}
     }
 
+    /*
+     * Open the initial log file if there is one.
+     */
+    logfopen(logctx);
+
     start_backend();
 
     /*
@@ -1069,11 +878,9 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
      * Finally show the window!
      */
     ShowWindow(hwnd, show);
+    ShowWindow(bkhwnd, show);
     SetForegroundWindow(hwnd);
 
-    /* > transparent background patch */
-    xtrans_load_bitmap();
-    /* < */
 
     /*
      * Set the palette up.
@@ -1081,10 +888,6 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
     pal = NULL;
     logpal = NULL;
     init_palette();
-
-    /* > transparent background patch */
-    xtrans_init(0);
-    /* < */
 
     term_set_focus(term, GetForegroundWindow() == hwnd);
     UpdateWindow(hwnd);
@@ -1149,6 +952,9 @@ void cleanup_exit(int code)
     sfree(logpal);
     if (pal)
 	DeleteObject(pal);
+    if (hbrBk)
+	DeleteObject(hbrBk);
+
     sk_cleanup();
 
     if (cfg.protocol == PROT_SSH) {
@@ -1159,10 +965,8 @@ void cleanup_exit(int code)
     }
     shutdown_help();
 
-	/* > transparent background patch */
-    xtrans_free_background();
-	/* < */
 
+    FreeLibrary( hDllInstUser32 );
     exit(code);
 }
 
@@ -1400,10 +1204,10 @@ static void cfgtopalette(void)
     static const int ww[] = {
 	256, 257, 258, 259, 260, 261,
 	0, 8, 1, 9, 2, 10, 3, 11,
-	4, 12, 5, 13, 6, 14, 7, 15
+	4, 12, 5, 13, 6, 14, 7, 15, 262,
     };
 
-    for (i = 0; i < 22; i++) {
+    for (i = 0; i < 23; i++) {
 	int w = ww[i];
 	defpal[w].rgbtRed = cfg.colours[i][0];
 	defpal[w].rgbtGreen = cfg.colours[i][1];
@@ -1498,6 +1302,13 @@ static void init_palette(void)
 	for (i = 0; i < NALLCOLOURS; i++)
 	    colours[i] = RGB(defpal[i].rgbtRed,
 			     defpal[i].rgbtGreen, defpal[i].rgbtBlue);
+
+    if(hbrBk)DeleteObject(hbrBk);
+    hbrBk = CreateSolidBrush (colours[(ATTR_DEFBG>>ATTR_BGSHIFT)]);
+    SetClassLong(bkhwnd, GCL_HBRBACKGROUND, (LONG)hbrBk);
+    pSetLayeredWindowAttributes( hwnd,colours[(ATTR_DEFBG>>ATTR_BGSHIFT)], 255, LWA_COLORKEY );
+    InvalidateRect(bkhwnd, NULL, TRUE);
+
 }
 
 /*
@@ -1627,10 +1438,6 @@ static void general_textout2(HDC hdc, int x, int y, CONST RECT *lprc,
 			    unsigned short *lpString, UINT cbCount,
 			    CONST INT *lpDx, int opaque, int wide, int iso2022)
 {
-	/* > transparent background patch */
-    if (cfg.transparent_mode && opaque && wide)
-        opaque = 0;
-	/* < */
     if (!iso2022) {
 	general_textout(hdc, x, y, lprc, lpString, cbCount, lpDx, opaque);
     } else {
@@ -1932,6 +1739,9 @@ void request_resize(void *frontend, int w, int h)
 	SetWindowPos(hwnd, NULL, 0, 0, width, height,
 	    SWP_NOACTIVATE | SWP_NOCOPYBITS |
 	    SWP_NOMOVE | SWP_NOZORDER);
+	SetWindowPos(bkhwnd, hwnd, 0, 0, width, height,
+	    SWP_NOACTIVATE | SWP_NOCOPYBITS |
+	    SWP_NOMOVE);
     } else
 	reset_window(0);
 
@@ -1959,15 +1769,6 @@ static void reset_window(int reinit) {
 
     win_width  = cr.right - cr.left;
     win_height = cr.bottom - cr.top;
-
-	/* > transparent background patch */
-    if (cfg.transparent_mode == 2) {
-        if (cfg.stop_when_moving)
-            InvalidateRect(hwnd, NULL, FALSE);
-    }
-    else if (cfg.transparent_mode)
-        xtrans_set_background();
-	/* < */
 
     if (cfg.resize_action == RESIZE_DISABLED) reinit = 2;
 
@@ -2059,6 +1860,10 @@ static void reset_window(int reinit) {
 		         font_width*term->cols + extra_width, 
 			 font_height*term->rows + extra_height,
 			 SWP_NOMOVE | SWP_NOZORDER);
+	    SetWindowPos(bkhwnd, hwnd, 0, 0, 
+		         font_width*term->cols + extra_width, 
+			 font_height*term->rows + extra_height,
+			 SWP_NOMOVE);
 	}
 
 	InvalidateRect(hwnd, NULL, TRUE);
@@ -2118,6 +1923,10 @@ static void reset_window(int reinit) {
 		         font_width*term->cols + extra_width, 
 			 font_height*term->rows + extra_height,
 			 SWP_NOMOVE | SWP_NOZORDER);
+	    SetWindowPos(bkhwnd, hwnd, 0, 0, 
+		         font_width*term->cols + extra_width, 
+			 font_height*term->rows + extra_height,
+			 SWP_NOMOVE);
 
 	    InvalidateRect(hwnd, NULL, TRUE);
 #ifdef RDB_DEBUG_PATCH
@@ -2161,14 +1970,14 @@ static void set_input_locale(HKL kl)
     kbd_codepage = atoi(lbuf);
 }
 
-static void click(Mouse_Button b, int x, int y, int shift, int ctrl, int alt)
+static void click(Mouse_Button b, int x, int y, int shift, int ctrl, int alt,int xhint)
 {
     int thistime = GetMessageTime();
 
     if (send_raw_mouse && !(cfg.mouse_override && shift)) {
 	lastbtn = MBT_NOTHING;
 	term_mouse(term, b, translate_button(b), MA_CLICK,
-		   x, y, shift, ctrl, alt);
+		   x, y, shift, ctrl, alt,xhint);
 	return;
     }
 
@@ -2182,7 +1991,7 @@ static void click(Mouse_Button b, int x, int y, int shift, int ctrl, int alt)
     }
     if (lastact != MA_NOTHING)
 	term_mouse(term, b, translate_button(b), lastact,
-		   x, y, shift, ctrl, alt);
+		   x, y, shift, ctrl, alt,xhint);
     lasttime = thistime;
 }
 
@@ -2319,6 +2128,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
     static int need_backend_resize = FALSE;
     static int fullscr_on_max = FALSE;
     static UINT last_mousemove = 0;
+    LRESULT ret;
 
     switch (message) {
       case WM_TIMER:
@@ -2484,6 +2294,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 		    /* Gracefully unzoom if necessary */
 		    if (IsZoomed(hwnd) &&
 			(cfg.resize_action == RESIZE_DISABLED)) {
+			ShowWindow(bkhwnd, SW_RESTORE);
 			ShowWindow(hwnd, SW_RESTORE);
 		    }
 		}
@@ -2504,15 +2315,6 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 		pal = NULL;
 		cfgtopalette();
 		init_palette();
-
-        /* > transparent background patch */
-		xtrans_init(1);
-        /* Avoid Unicode line drawing bug. */
-#ifdef XTRANS_AVOID_UL_BUG
-        if (cfg.vtmode == VT_UNICODE && cfg.transparent_mode)
-            cfg.vtmode = VT_POORMAN;
-#endif
-        /* < */
 
 		/* Pass new config data to the terminal */
 		term_reconfig(term, &cfg);
@@ -2542,9 +2344,13 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 			    nexflag |= WS_EX_TOPMOST;
 			    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
 					 SWP_NOMOVE | SWP_NOSIZE);
+			    SetWindowPos(bkhwnd, hwnd, 0, 0, 0, 0,
+					 SWP_NOMOVE | SWP_NOSIZE);
 			} else {
 			    nexflag &= ~(WS_EX_TOPMOST);
 			    SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0,
+					 SWP_NOMOVE | SWP_NOSIZE);
+			    SetWindowPos(bkhwnd, hwnd, 0, 0, 0, 0,
 					 SWP_NOMOVE | SWP_NOSIZE);
 			}
 		    }
@@ -2572,14 +2378,22 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 			nflg |= WS_MAXIMIZEBOX;
 
 		    if (nflg != flag || nexflag != exflag) {
-			if (nflg != flag)
+			if (nflg != flag){
+			    SetWindowLongPtr(bkhwnd, GWL_STYLE, nflg);
 			    SetWindowLongPtr(hwnd, GWL_STYLE, nflg);
-			if (nexflag != exflag)
+			}
+			if (nexflag != exflag){
+			    SetWindowLongPtr(bkhwnd, GWL_EXSTYLE, nexflag);
 			    SetWindowLongPtr(hwnd, GWL_EXSTYLE, nexflag);
+			}
 
 			SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
 				     SWP_NOACTIVATE | SWP_NOCOPYBITS |
 				     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
+				     SWP_FRAMECHANGED);
+			SetWindowPos(bkhwnd, hwnd, 0, 0, 0, 0,
+				     SWP_NOACTIVATE | SWP_NOCOPYBITS |
+				     SWP_NOMOVE | SWP_NOSIZE |
 				     SWP_FRAMECHANGED);
 
 			init_lvl = 2;
@@ -2611,6 +2425,12 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 		    cfg.resize_action == RESIZE_EITHER ||
 		    (cfg.resize_action != prev_cfg.resize_action))
 		    init_lvl = 2;
+
+		if(pSetLayeredWindowAttributes){
+			SetWindowLong(bkhwnd, GWL_EXSTYLE,GetWindowLong(bkhwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+			pSetLayeredWindowAttributes( bkhwnd, 0, (255 * cfg.transparentratio) / 100, LWA_ALPHA );
+		}
+ 
 
 		InvalidateRect(hwnd, NULL, TRUE);
 		reset_window(init_lvl);
@@ -2680,10 +2500,18 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 	}
 	break;
 
+	case WM_NCACTIVATE:
+	if(wParam){
+	    SetWindowPos(hwnd,HWND_TOP,0,0,0,0,SWP_NOMOVE | SWP_NOSIZE);
+	    SetWindowPos(bkhwnd,hwnd,0,0,0,0,SWP_NOMOVE |SWP_NOSIZE | SWP_NOACTIVATE);
+	}
+	break;
+
 #define X_POS(l) ((int)(short)LOWORD(l))
 #define Y_POS(l) ((int)(short)HIWORD(l))
 
 #define TO_CHR_X(x) ((((x)<0 ? (x)-font_width+1 : (x))-offset_width) / font_width)
+#define TO_HINT_X(x) (((((x)<0 ? (x)-font_width+1 : (x))-offset_width) % font_width < font_width/2) ? 0:1 )
 #define TO_CHR_Y(y) ((((y)<0 ? (y)-font_height+1: (y))-offset_height) / font_height)
       case WM_LBUTTONDOWN:
       case WM_MBUTTONDOWN:
@@ -2780,13 +2608,13 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 		click(button,
 		      TO_CHR_X(X_POS(lParam)), TO_CHR_Y(Y_POS(lParam)),
 		      wParam & MK_SHIFT, wParam & MK_CONTROL,
-		      is_alt_pressed());
+		      is_alt_pressed(),TO_HINT_X(X_POS(lParam)));
 		SetCapture(hwnd);
 	    } else {
 		term_mouse(term, button, translate_button(button), MA_RELEASE,
 			   TO_CHR_X(X_POS(lParam)),
 			   TO_CHR_Y(Y_POS(lParam)), wParam & MK_SHIFT,
-			   wParam & MK_CONTROL, is_alt_pressed());
+			   wParam & MK_CONTROL, is_alt_pressed(),TO_HINT_X(X_POS(lParam)));
 		ReleaseCapture();
 	    }
 	}
@@ -2825,7 +2653,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 	    term_mouse(term, b, translate_button(b), MA_DRAG,
 		       TO_CHR_X(X_POS(lParam)),
 		       TO_CHR_Y(Y_POS(lParam)), wParam & MK_SHIFT,
-		       wParam & MK_CONTROL, is_alt_pressed());
+		       wParam & MK_CONTROL, is_alt_pressed(),TO_HINT_X(X_POS(lParam)));
 	}
 	return 0;
       case WM_NCMOUSEMOVE:
@@ -2930,13 +2758,6 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 			offset_width+font_width*term->cols,
 			offset_height+font_height*term->rows);
 
-		/* > transparent background patch */
-		if (cfg.transparent_mode > 0)
-            (*xtrans_paint_background)(hdc, p.rcPaint.left, p.rcPaint.top,
-                                       p.rcPaint.right - p.rcPaint.left,
-                                       p.rcPaint.bottom - p.rcPaint.top);
-		else
-		/* < */
 		Rectangle(hdc, p.rcPaint.left, p.rcPaint.top, 
 			  p.rcPaint.right, p.rcPaint.bottom);
 
@@ -2976,6 +2797,8 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 	flash_window(0);	       /* stop */
 	compose_state = 0;
 	term_update(term);
+	SetWindowPos(hwnd,HWND_TOP,0,0,0,0,SWP_NOMOVE | SWP_NOSIZE);
+	SetWindowPos(bkhwnd,hwnd,0,0,0,0,SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 	break;
       case WM_KILLFOCUS:
 	show_mouseptr(1);
@@ -2998,16 +2821,15 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 #ifdef RDB_DEBUG_PATCH
 	debug((27, "WM_EXITSIZEMOVE"));
 #endif
-	/* > transparent background patch */
-	if (cfg.transparent_mode == 2) {
-        if (cfg.stop_when_moving)
-            InvalidateRect(hwnd, NULL, FALSE);
-    }
-    else if (cfg.transparent_mode)
-        xtrans_set_background();
-	/* < */
 	if (need_backend_resize) {
 	    term_size(term, cfg.height, cfg.width, cfg.savelines);
+	    {
+		RECT rc;
+		GetWindowRect(hwnd,&rc);
+		SetWindowPos(bkhwnd,hwnd,rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,SWP_NOACTIVATE|SWP_DRAWFRAME);
+		InvalidateRect(bkhwnd, NULL, TRUE);
+	    }
+ 
 	    InvalidateRect(hwnd, NULL, TRUE);
 	}
 	break;
@@ -3066,6 +2888,13 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 		else
 		    r->bottom -= eh;
 	    }
+	    {
+		RECT rc;
+		GetWindowRect(hwnd,&rc);
+		SetWindowPos(hwnd,NULL,rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+		SetWindowPos(bkhwnd,hwnd,rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,SWP_NOACTIVATE);
+		InvalidateRect(bkhwnd, NULL, TRUE);
+	    }
 	    if (ew || eh)
 		return 1;
 	    else
@@ -3099,6 +2928,12 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 	    else
 		r->bottom = r->top + h*term->rows + ex_height;
 
+	    {
+		RECT rc;
+		GetWindowRect(hwnd,&rc);
+		SetWindowPos(bkhwnd,hwnd,rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,SWP_NOACTIVATE);
+		InvalidateRect(bkhwnd, NULL, TRUE);
+	    }
 	    return rv;
 	}
 	/* break;  (never reached) */
@@ -3106,12 +2941,15 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 	fullscr_on_max = TRUE;
 	break;
       case WM_MOVE:
-	/* > transparent background patch */
-	if (cfg.transparent_mode == 2 && (! cfg.stop_when_moving))
-        InvalidateRect(hwnd, NULL, FALSE);
-	/* < */
 	sys_cursor_update();
-	break;
+	ret=DefWindowProc(hwnd, message, wParam, lParam);
+	{
+	    RECT rc;
+	    GetWindowRect(hwnd,&rc);
+	    SetWindowPos(hwnd,NULL,rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+	    SetWindowPos(bkhwnd,hwnd,rc.left,rc.top,rc.right-rc.left,rc.bottom-rc.top,SWP_NOACTIVATE);
+	}
+	return ret;
       case WM_SIZE:
 #ifdef RDB_DEBUG_PATCH
 	debug((27, "WM_SIZE %s (%d,%d)",
@@ -3122,12 +2960,6 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 		"...",
 	    LOWORD(lParam), HIWORD(lParam)));
 #endif
-	/* > transparent background patch */
-	if(cfg.transparent_mode == 1)
-        cfg.transparent_mode = -1;
-	else if (cfg.transparent_mode == 2)
-        InvalidateRect(hwnd, NULL, FALSE);
-	/* < */
 	if (wParam == SIZE_MINIMIZED)
 	    SetWindowText(hwnd,
 			  cfg.win_name_always ? window_name : icon_name);
@@ -3458,11 +3290,11 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 			       MA_CLICK,
 			       TO_CHR_X(X_POS(lParam)),
 			       TO_CHR_Y(Y_POS(lParam)), shift_pressed,
-			       control_pressed, is_alt_pressed());
+			       control_pressed, is_alt_pressed(),TO_HINT_X(X_POS(lParam)));
 		    term_mouse(term, b, translate_button(b),
 			       MA_RELEASE, TO_CHR_X(X_POS(lParam)),
 			       TO_CHR_Y(Y_POS(lParam)), shift_pressed,
-			       control_pressed, is_alt_pressed());
+			       control_pressed, is_alt_pressed(),TO_HINT_X(X_POS(lParam)));
 		} else {
 		    /* trigger a scroll */
 		    term_scroll(term, 0,
@@ -3480,6 +3312,49 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
      */
     return DefWindowProc(hwnd, message, wParam, lParam);
 }
+
+ 
+static LRESULT CALLBACK bkWndProc(HWND bkhwnd, UINT message,
+								WPARAM wParam, LPARAM lParam)
+{
+	POINT mouse;
+	LRESULT ret;
+	switch (message) {
+	case WM_NCLBUTTONDOWN:
+	case WM_NCMBUTTONDOWN:
+	case WM_NCRBUTTONDOWN:
+	case WM_LBUTTONDOWN:
+	case WM_MBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_MBUTTONUP:
+	case WM_RBUTTONUP:
+		SetForegroundWindow(hwnd);
+		mouse.x=LOWORD(lParam);
+		mouse.y=HIWORD(lParam);
+		ClientToScreen(bkhwnd,&mouse);
+		ScreenToClient(hwnd,&mouse);
+		ret=SendMessage(hwnd,message,wParam,MAKELPARAM(mouse.x,mouse.y));
+//		ret=WndProc(hwnd,message,wParam,MAKELPARAM(mouse.x,mouse.y));
+		return ret;
+	case WM_MOUSEACTIVATE:
+		return MA_NOACTIVATE;
+	default:
+		break;
+	}
+
+	return DefWindowProc(bkhwnd, message, wParam, lParam);
+}
+static BOOL CALLBACK EnumWindowsProc(HWND hWnd,LPARAM lParam)
+{
+	SendMessage(hWnd , WM_DISPLAYCHANGE , 24 , MAKELONG(1024,1280));
+	SendMessage(hWnd , WM_DISPLAYCHANGE , 32 , MAKELONG(1024,1280));
+	SendMessage(hWnd , WM_SYSCOLORCHANGE ,0,0);
+	return TRUE;
+}
+ 
+	
+
 
 /*
  * Move the system caret. (We maintain one, even though it's
@@ -3544,23 +3419,14 @@ static void sys_cursor_update(void)
 void do_text_internal(Context ctx, int x, int y, wchar_t *text, int len,
 		      unsigned long attr, int lattr)
 {
-    COLORREF fg, bg, t;
+    COLORREF fg, bg, t, brd;
     int nfg, nbg, nfont;
     HDC hdc = ctx;
-    RECT line_box;
+    RECT line_box,line_box2;
     int force_manual_underline = 0;
     int fnt_width, char_width;
     int text_adjust = 0;
     static int *IpDx = 0, IpDxLEN = 0;
-
-	/* > transparent background patch */
-	UINT exttextout_options;
-
-	if (cfg.transparent_mode)
-        exttextout_options = ETO_CLIPPED;
-	else
-        exttextout_options = ETO_CLIPPED | ETO_OPAQUE;
-	/* < */
 
     lattr &= LATTR_MODE;
 
@@ -3684,27 +3550,20 @@ void do_text_internal(Context ctx, int x, int y, wchar_t *text, int len,
     }
     fg = colours[nfg];
     bg = colours[nbg];
+    brd= colours[262];
     SelectObject(hdc, fonts[nfont]);
     SetTextColor(hdc, fg);
     SetBkColor(hdc, bg);
-	/* > transparent background patch */
-	if (cfg.transparent_mode && (nbg == 258)) {
-        SetBkMode(hdc, TRANSPARENT);
-        (*xtrans_paint_background)(hdc, x, y, char_width * len, font_height);
-	}
-    else {
-	/* < */
     if (attr & TATTR_COMBINING)
 	SetBkMode(hdc, TRANSPARENT);
     else
 	SetBkMode(hdc, OPAQUE);
-	/* > transparent background patch */
-    }
-	/* < */
     line_box.left = x;
     line_box.top = y;
     line_box.right = x + char_width * len;
     line_box.bottom = y + font_height;
+    line_box2=line_box;
+    line_box2.bottom-=1;
 
     /* Only want the left half of double width lines */
     if (line_box.right > font_width*term->cols+offset_width)
@@ -3746,11 +3605,54 @@ void do_text_internal(Context ctx, int x, int y, wchar_t *text, int len,
 	if (nlen <= 0)
 	    return;		       /* Eeek! */
 
+	if(cfg.withborder){
+	    SetTextColor(hdc, brd);
+	    SetBkMode(hdc, ETO_OPAQUE);
 	ExtTextOutW2(hdc, x,
 		    y - font_height * (lattr == LATTR_BOT) + text_adjust,
-	/* > transparent background patch */
-		    exttextout_options, &line_box, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
-	/* < */
+		    ETO_CLIPPED , &line_box, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
+	    SetBkMode(hdc, TRANSPARENT);
+	    ExtTextOutW2(hdc, x - 1,
+			y - font_height * (lattr ==
+					   LATTR_BOT) + text_adjust-1,
+			ETO_CLIPPED, &line_box, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
+	    ExtTextOutW2(hdc, x,
+			y - font_height * (lattr ==
+					   LATTR_BOT) + text_adjust-1,
+			ETO_CLIPPED, &line_box, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
+	    ExtTextOutW2(hdc, x + 1,
+			y - font_height * (lattr ==
+					   LATTR_BOT) + text_adjust-1,
+			ETO_CLIPPED, &line_box, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
+	    ExtTextOutW2(hdc, x - 1,
+			y - font_height * (lattr ==
+					   LATTR_BOT) + text_adjust,
+			ETO_CLIPPED, &line_box, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
+	    ExtTextOutW2(hdc, x + 1,
+			y - font_height * (lattr ==
+					   LATTR_BOT) + text_adjust,
+			ETO_CLIPPED, &line_box, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
+	    ExtTextOutW2(hdc, x - 1,
+			y - font_height * (lattr ==
+					   LATTR_BOT) + text_adjust+1,
+			ETO_CLIPPED, &line_box2, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
+	    ExtTextOutW2(hdc, x,
+			y - font_height * (lattr ==
+					   LATTR_BOT) + text_adjust+1,
+			ETO_CLIPPED, &line_box2, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
+	    ExtTextOutW2(hdc, x + 1,
+			y - font_height * (lattr ==
+					   LATTR_BOT) + text_adjust+1,
+			ETO_CLIPPED, &line_box2, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
+	    SetTextColor(hdc, fg);
+	    ExtTextOutW2(hdc, x, y - font_height * (lattr == LATTR_BOT) + text_adjust,
+		ETO_CLIPPED , &line_box, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
+	} else {
+	ExtTextOutW2(hdc, x,
+		    y - font_height * (lattr == LATTR_BOT) + text_adjust,
+		ETO_CLIPPED | ETO_OPAQUE, &line_box, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
+	}
+
 	if (bold_mode == BOLD_SHADOW && (attr & ATTR_BOLD)) {
 	    SetBkMode(hdc, TRANSPARENT);
 	    ExtTextOutW2(hdc, x - 1,
@@ -3772,11 +3674,38 @@ void do_text_internal(Context ctx, int x, int y, wchar_t *text, int len,
 	for (i = 0; i < len; i++)
 	    directbuf[i] = text[i] & 0xFF;
 
+	if(cfg.withborder){
+	    SetTextColor(hdc, brd);
+	    SetBkMode(hdc, ETO_OPAQUE);
+	    ExtTextOut(hdc, x,
+		   y - font_height * (lattr == LATTR_BOT) + text_adjust,
+		   ETO_CLIPPED | ETO_OPAQUE, &line_box, directbuf, len, IpDx);
+	    SetBkMode(hdc, TRANSPARENT);
+	    ExtTextOut(hdc, x -1, y - font_height * (lattr == LATTR_BOT) + text_adjust -1,
+		   ETO_CLIPPED, &line_box, directbuf, len, IpDx);
+	    ExtTextOut(hdc, x , y - font_height * (lattr == LATTR_BOT) + text_adjust -1,
+		   ETO_CLIPPED, &line_box, directbuf, len, IpDx);
+	    ExtTextOut(hdc, x +1, y - font_height * (lattr == LATTR_BOT) + text_adjust -1,
+		   ETO_CLIPPED, &line_box, directbuf, len, IpDx);
+	    ExtTextOut(hdc, x -1, y - font_height * (lattr == LATTR_BOT) + text_adjust,
+		   ETO_CLIPPED, &line_box, directbuf, len, IpDx);
+	    ExtTextOut(hdc, x +1, y - font_height * (lattr == LATTR_BOT) + text_adjust,
+		   ETO_CLIPPED, &line_box, directbuf, len, IpDx);
+	    ExtTextOut(hdc, x -1, y - font_height * (lattr == LATTR_BOT) + text_adjust +1,
+		   ETO_CLIPPED, &line_box2, directbuf, len, IpDx);
+	    ExtTextOut(hdc, x , y - font_height * (lattr == LATTR_BOT) + text_adjust +1,
+		   ETO_CLIPPED, &line_box2, directbuf, len, IpDx);
+	    ExtTextOut(hdc, x +1, y - font_height * (lattr == LATTR_BOT) + text_adjust +1,
+		   ETO_CLIPPED, &line_box2, directbuf, len, IpDx);
+	    SetTextColor(hdc, fg);
 	ExtTextOut(hdc, x,
 		   y - font_height * (lattr == LATTR_BOT) + text_adjust,
-	/* > transparent background patch */
-		   exttextout_options, &line_box, directbuf, len, IpDx);
-	/* < */
+		   ETO_CLIPPED, &line_box, directbuf, len, IpDx);
+	} else {
+	ExtTextOut(hdc, x,
+		   y - font_height * (lattr == LATTR_BOT) + text_adjust,
+		   ETO_CLIPPED | ETO_OPAQUE, &line_box, directbuf, len, IpDx);
+	}
 	if (bold_mode == BOLD_SHADOW && (attr & ATTR_BOLD)) {
 	    SetBkMode(hdc, TRANSPARENT);
 
@@ -3807,10 +3736,37 @@ void do_text_internal(Context ctx, int x, int y, wchar_t *text, int len,
 	for (i = 0; i < len; i++)
 	    wbuf[i] = text[i];
 
+	if(cfg.withborder && !(attr & TATTR_COMBINING)){
+	    SetTextColor(hdc, brd);
+	    SetBkMode(hdc, ETO_OPAQUE);
+	    general_textout2(hdc, x, y - font_height * (lattr == LATTR_BOT) + text_adjust,
+		      &line_box, wbuf, len, IpDx, 1, !!(attr & ATTR_WIDE), in_utf (term) && term->ucsdata->iso2022);
+	    SetBkMode(hdc, TRANSPARENT);
+	    general_textout2(hdc, x-1, y - font_height * (lattr == LATTR_BOT) + text_adjust -1,
+		      &line_box, wbuf, len, IpDx, 0, !!(attr & ATTR_WIDE), in_utf (term) && term->ucsdata->iso2022);
+	    general_textout2(hdc, x, y - font_height * (lattr == LATTR_BOT) + text_adjust -1,
+		      &line_box, wbuf, len, IpDx, 0, !!(attr & ATTR_WIDE), in_utf (term) && term->ucsdata->iso2022);
+	    general_textout2(hdc, x+1, y - font_height * (lattr == LATTR_BOT) + text_adjust -1,
+		      &line_box, wbuf, len, IpDx, 0, !!(attr & ATTR_WIDE), in_utf (term) && term->ucsdata->iso2022);
+	    general_textout2(hdc, x-1, y - font_height * (lattr == LATTR_BOT) + text_adjust,
+		      &line_box, wbuf, len, IpDx, 0, !!(attr & ATTR_WIDE), in_utf (term) && term->ucsdata->iso2022);
+	    general_textout2(hdc, x+1, y - font_height * (lattr == LATTR_BOT) + text_adjust,
+		      &line_box, wbuf, len, IpDx, 0, !!(attr & ATTR_WIDE), in_utf (term) && term->ucsdata->iso2022);
+	    general_textout2(hdc, x-1, y - font_height * (lattr == LATTR_BOT) + text_adjust +1,
+		      &line_box2, wbuf, len, IpDx, 0, !!(attr & ATTR_WIDE), in_utf (term) && term->ucsdata->iso2022);
+	    general_textout2(hdc, x, y - font_height * (lattr == LATTR_BOT) + text_adjust +1,
+		      &line_box2, wbuf, len, IpDx, 0, !!(attr & ATTR_WIDE), in_utf (term) && term->ucsdata->iso2022);
+	    general_textout2(hdc, x+1, y - font_height * (lattr == LATTR_BOT) + text_adjust +1,
+		      &line_box2, wbuf, len, IpDx, 0, !!(attr & ATTR_WIDE), in_utf (term) && term->ucsdata->iso2022);
+	    SetTextColor(hdc, fg);
+	    general_textout2(hdc, x, y - font_height * (lattr == LATTR_BOT) + text_adjust,
+		      &line_box2, wbuf, len, IpDx, 0, !!(attr & ATTR_WIDE), in_utf (term) && term->ucsdata->iso2022);
+	} else {
+
 	/* print Glyphs as they are, without Windows' Shaping*/
 	general_textout2(hdc, x, y - font_height * (lattr == LATTR_BOT) + text_adjust,
 			&line_box, wbuf, len, IpDx, !(attr & TATTR_COMBINING), !!(attr & ATTR_WIDE), in_utf (term) && term->ucsdata->iso2022);
-
+	}
 	/* And the shadow bold hack. */
 	if (bold_mode == BOLD_SHADOW && (attr & ATTR_BOLD)) {
 	    SetBkMode(hdc, TRANSPARENT);
@@ -5596,9 +5552,11 @@ void set_iconic(void *frontend, int iconic)
     if (IsIconic(hwnd)) {
 	if (!iconic)
 	    ShowWindow(hwnd, SW_RESTORE);
+	    ShowWindow(bkhwnd, SW_RESTORE);
     } else {
 	if (iconic)
 	    ShowWindow(hwnd, SW_MINIMIZE);
+	    ShowWindow(bkhwnd, SW_MINIMIZE);
     }
 }
 
@@ -5613,6 +5571,7 @@ void move_window(void *frontend, int x, int y)
        return;
 
     SetWindowPos(hwnd, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+    SetWindowPos(bkhwnd, hwnd, x, y, 0, 0, SWP_NOSIZE);
 }
 
 /*
@@ -5624,6 +5583,8 @@ void set_zorder(void *frontend, int top)
     if (cfg.alwaysontop)
 	return;			       /* ignore */
     SetWindowPos(hwnd, top ? HWND_TOP : HWND_BOTTOM, 0, 0, 0, 0,
+		 SWP_NOMOVE | SWP_NOSIZE);
+    SetWindowPos(bkhwnd, hwnd, 0, 0, 0, 0,
 		 SWP_NOMOVE | SWP_NOSIZE);
 }
 
@@ -5644,9 +5605,11 @@ void set_zoomed(void *frontend, int zoomed)
     if (IsZoomed(hwnd)) {
         if (!zoomed)
 	    ShowWindow(hwnd, SW_RESTORE);
+	    ShowWindow(bkhwnd, SW_RESTORE);
     } else {
 	if (zoomed)
 	    ShowWindow(hwnd, SW_MAXIMIZE);
+	    ShowWindow(bkhwnd, SW_MAXIMIZE);
     }
 }
 
@@ -5747,10 +5710,15 @@ static void make_full_screen()
 	style |= WS_VSCROLL;
     else
 	style &= ~WS_VSCROLL;
+    SetWindowLongPtr(bkhwnd, GWL_STYLE, style);
     SetWindowLongPtr(hwnd, GWL_STYLE, style);
 
     /* Resize ourselves to exactly cover the nearest monitor. */
 	get_fullscreen_rect(&ss);
+    SetWindowPos(bkhwnd, HWND_TOP, ss.left, ss.top,
+			ss.right - ss.left,
+			ss.bottom - ss.top,
+			SWP_FRAMECHANGED);
     SetWindowPos(hwnd, HWND_TOP, ss.left, ss.top,
 			ss.right - ss.left,
 			ss.bottom - ss.top,
@@ -5785,6 +5753,10 @@ static void clear_full_screen()
 	style &= ~WS_VSCROLL;
     if (style != oldstyle) {
 	SetWindowLongPtr(hwnd, GWL_STYLE, style);
+	SetWindowLongPtr(bkhwnd, GWL_STYLE, style);
+	SetWindowPos(bkhwnd, NULL, 0, 0, 0, 0,
+		     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
+		     SWP_FRAMECHANGED);
 	SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
 		     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
 		     SWP_FRAMECHANGED);
@@ -5801,11 +5773,13 @@ static void clear_full_screen()
 static void flip_full_screen()
 {
     if (is_full_screen()) {
+	ShowWindow(bkhwnd, SW_RESTORE);
 	ShowWindow(hwnd, SW_RESTORE);
     } else if (IsZoomed(hwnd)) {
 	make_full_screen();
     } else {
 	SendMessage(hwnd, WM_FULLSCR_ON_MAX, 0, 0);
+	ShowWindow(bkhwnd, SW_MAXIMIZE);
 	ShowWindow(hwnd, SW_MAXIMIZE);
     }
 }
