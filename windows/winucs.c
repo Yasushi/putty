@@ -390,6 +390,23 @@ struct cp_list_item {
 };
 
 static const struct cp_list_item cp_list[] = {
+    {"UTF-8", CP_UTF8},
+    {"UTF-8 (CJK)", CP_UTF8},
+    {"UTF-8 (Non-CJK)", CP_UTF8},
+
+    {"EUC-JP", CP_UTF8},
+    {"ISO-2022-JP", CP_UTF8},
+    {"MS_Kanji", CP_UTF8},
+    {"Shift_JIS", CP_UTF8},
+    {"EUC-KR", CP_UTF8},
+    {"Big5", CP_UTF8},
+    {"EUC-CN", CP_UTF8},
+
+    {"UTF-8/Auto-Detect Japanese", CP_UTF8},
+    {"EUC-JP/Auto-Detect Japanese", CP_UTF8},
+    {"MS_Kanji/Auto-Detect Japanese", CP_UTF8},
+    {"Shift_JIS/Auto-Detect Japanese", CP_UTF8},
+
     {"ISO-8859-1:1998 (Latin-1, West Europe)", 0, 96, iso_8859_1},
     {"ISO-8859-2:1999 (Latin-2, East Europe)", 0, 96, iso_8859_2},
     {"ISO-8859-3:1999 (Latin-3, South Europe)", 0, 96, iso_8859_3},
@@ -405,8 +422,6 @@ static const struct cp_list_item cp_list[] = {
     {"ISO-8859-14:1998 (Latin-8, Celtic)", 0, 96, iso_8859_14},
     {"ISO-8859-15:1999 (Latin-9, \"euro\")", 0, 96, iso_8859_15},
     {"ISO-8859-16:2001 (Latin-10, Balkan)", 0, 96, iso_8859_16},
-
-    {"UTF-8", CP_UTF8},
 
     {"KOI8-U", 0, 128, koi8_u},
     {"KOI8-R", 20866},
@@ -447,6 +462,7 @@ void init_ucs(Config *cfg, struct unicode_data *ucsdata)
 
     /* Decide on the Line and Font codepages */
     ucsdata->line_codepage = decode_codepage(cfg->line_codepage);
+    ucsdata->iso2022 = !iso2022_init (&ucsdata->iso2022_data, cfg->line_codepage, 1);
 
     if (ucsdata->font_codepage <= 0) { 
 	ucsdata->font_codepage=0; 
@@ -572,7 +588,7 @@ void init_ucs(Config *cfg, struct unicode_data *ucsdata)
 	link_font(ucsdata->unitab_xterm, ucsdata->unitab_oemcp, CSET_OEMCP);
     }
 
-    if (ucsdata->dbcs_screenfont &&
+    if (!cfg->use_5casis && ucsdata->dbcs_screenfont &&
 	ucsdata->font_codepage != ucsdata->line_codepage) {
 	/* F***ing Microsoft fonts, Japanese and Korean codepage fonts
 	 * have a currency symbol at 0x5C but their unicode value is 
@@ -1053,6 +1069,11 @@ int decode_codepage(char *cp_name)
 	  case 1257: cp_name = "ISO-8859-13"; break;
 	    /* default: leave it blank, which will select -1, direct->font */
 	}
+    }
+
+    if (cp_name && *cp_name) {
+	if (!iso2022_init_test (cp_name))
+	    cp_name = "UTF-8";
     }
 
     if (cp_name && *cp_name)

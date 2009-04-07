@@ -99,6 +99,12 @@ void win_setup_config_box(struct controlbox *b, HWND *hwndp, int has_help,
     ctrl_checkbox(s, "Control-Alt is different from AltGr", 'd',
 		  HELPCTX(keyboard_ctrlalt),
 		  dlg_stdcheckbox_handler, I(offsetof(Config,ctrlaltkeys)));
+    ctrl_checkbox(s, "Right-Alt acts as it is", 'l',
+		  HELPCTX(no_help),
+		  dlg_stdcheckbox_handler, I(offsetof(Config,rightaltkey)));
+    ctrl_checkbox(s, "Set meta bit on Alt (instead of escape-char)", 'm',
+		  HELPCTX(no_help),
+		  dlg_stdcheckbox_handler, I(offsetof(Config,alt_metabit)));
 
     /*
      * Windows allows an arbitrary .WAV to be played as a bell, and
@@ -129,9 +135,9 @@ void win_setup_config_box(struct controlbox *b, HWND *hwndp, int has_help,
 		c->radio.buttons =
 		    sresize(c->radio.buttons, c->radio.nbuttons, char *);
 		c->radio.buttons[c->radio.nbuttons-1] =
-		    dupstr("Play a custom sound file");
+		    l10n_dupstr("Play a custom sound file");
 		c->radio.buttons[c->radio.nbuttons-2] =
-		    dupstr("Beep using the PC speaker");
+		    l10n_dupstr("Beep using the PC speaker");
 		c->radio.buttondata =
 		    sresize(c->radio.buttondata, c->radio.nbuttons, intorptr);
 		c->radio.buttondata[c->radio.nbuttons-1] = I(BELL_WAVEFILE);
@@ -196,6 +202,11 @@ void win_setup_config_box(struct controlbox *b, HWND *hwndp, int has_help,
 		  HELPCTX(translation_cyrillic),
 		  dlg_stdcheckbox_handler,
 		  I(offsetof(Config,xlat_capslockcyr)));
+    if (!midsession)
+	ctrl_checkbox(s, "Use character code 5c as is", 't',
+		  HELPCTX(no_help),
+		  dlg_stdcheckbox_handler,
+		  I(offsetof(Config,use_5casis)));
 
     /*
      * On Windows we can use but not enumerate translation tables
@@ -226,11 +237,11 @@ void win_setup_config_box(struct controlbox *b, HWND *hwndp, int has_help,
 		c->radio.buttons =
 		    sresize(c->radio.buttons, c->radio.nbuttons, char *);
 		c->radio.buttons[c->radio.nbuttons-3] =
-		    dupstr("Font has XWindows encoding");
+		    l10n_dupstr("Font has XWindows encoding");
 		c->radio.buttons[c->radio.nbuttons-2] =
-		    dupstr("Use font in both ANSI and OEM modes");
+		    l10n_dupstr("Use font in both ANSI and OEM modes");
 		c->radio.buttons[c->radio.nbuttons-1] =
-		    dupstr("Use font in OEM mode only");
+		    l10n_dupstr("Use font in OEM mode only");
 		c->radio.buttondata =
 		    sresize(c->radio.buttondata, c->radio.nbuttons, intorptr);
 		c->radio.buttondata[c->radio.nbuttons-3] = I(VT_XWINDOWS);
@@ -333,6 +344,60 @@ void win_setup_config_box(struct controlbox *b, HWND *hwndp, int has_help,
 		  HELPCTX(behaviour_altenter),
 		  dlg_stdcheckbox_handler,
 		  I(offsetof(Config,fullscreenonaltenter)));
+    if (!midsession)
+	ctrl_checkbox(s, "Switch PuTTY windows with Ctrl + TAB", 's',
+		  HELPCTX(no_help),
+		  dlg_stdcheckbox_handler, I(offsetof(Config,ctrl_tab_switch)));
+
+	/* > transparent background patch */
+    /*
+     * The Window/Wallpaper panel.
+     */
+    ctrl_settitle(b, "Window/Wallpaper", "Options controlling wallpaper");
+
+	s = ctrl_getset( b, "Window/Wallpaper", "wallpaper",
+					 "Transparent background mode" );
+    ctrl_radiobuttons( s, NULL, NO_SHORTCUT, 1,
+					   HELPCTX(no_help),
+					   dlg_stdradiobutton_handler,
+					   I(offsetof(Config, transparent_mode)),
+					   "Disable", 'd', I(0),
+					   "Like transparent xterms", 'x', I(1),
+					   "Use bitmap file", 'b', I(2),
+					   NULL );
+
+	s = ctrl_getset( b, "Window/Wallpaper", "shading",
+					 "Adjust transparency" );
+	ctrl_editbox( s, "Alpha value of bg image (0 - 255) :", 'l', 20,
+				  HELPCTX(no_help),
+				  dlg_stdeditbox_handler, I(offsetof(Config,shading)), I(-1) );
+
+	s = ctrl_getset( b, "Window/Wallpaper", "imgfile",
+					 "Use bitmap file mode settings" );
+	ctrl_checkbox( s, "Use AlphaBlending", 'u',
+				   HELPCTX(no_help),
+				   dlg_stdcheckbox_handler, I(offsetof(Config,use_alphablend)) );
+	ctrl_checkbox( s, "Stopped to draw when moving", 's',
+				   HELPCTX(no_help),
+				   dlg_stdcheckbox_handler, I(offsetof(Config,stop_when_moving)) );
+	ctrl_filesel( s, "Bitmap file used for background :", NO_SHORTCUT,
+				  FILTER_IMAGE_FILES,
+				  FALSE, "Select bitmap file for background",
+				  HELPCTX(no_help),
+				  dlg_stdfilesel_handler, I(offsetof(Config,bgimg_file)) );
+
+	/* < */
+
+    /*
+     * The icon for Windows title bar
+     */
+    if (!midsession) {
+	s = ctrl_getset(b, "Window/Icon", "icon", NULL);
+	ctrl_filesel(s, "The icon on title bar", 'i',
+		 FILTER_ICON_FILES, FALSE, "Select icon file",
+		 HELPCTX(no_help),
+		 dlg_stdfilesel_handler, I(offsetof(Config, iconfile)));
+    }
 
     /*
      * Windows supports a local-command proxy. This also means we
@@ -350,7 +415,7 @@ void win_setup_config_box(struct controlbox *b, HWND *hwndp, int has_help,
 		c->radio.buttons =
 		    sresize(c->radio.buttons, c->radio.nbuttons, char *);
 		c->radio.buttons[c->radio.nbuttons-1] =
-		    dupstr("Local");
+		    l10n_dupstr("Local");
 		c->radio.buttondata =
 		    sresize(c->radio.buttondata, c->radio.nbuttons, intorptr);
 		c->radio.buttondata[c->radio.nbuttons-1] = I(PROXY_CMD);
@@ -365,7 +430,7 @@ void win_setup_config_box(struct controlbox *b, HWND *hwndp, int has_help,
 		offsetof(Config, proxy_telnet_command)) {
 		assert(c->generic.handler == dlg_stdeditbox_handler);
 		sfree(c->generic.label);
-		c->generic.label = dupstr("Telnet command, or local"
+		c->generic.label = l10n_dupstr("Telnet command, or local"
 					  " proxy command");
 		break;
 	    }

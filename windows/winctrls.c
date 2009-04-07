@@ -27,23 +27,23 @@
 #define GAPXBOX 7
 #define GAPYBOX 4
 #define DLGWIDTH 168
-#define STATICHEIGHT 8
-#define TITLEHEIGHT 12
-#define CHECKBOXHEIGHT 8
-#define RADIOHEIGHT 8
-#define EDITHEIGHT 12
-#define LISTHEIGHT 11
+#define STATICHEIGHT (8+1)
+#define TITLEHEIGHT (12+1)
+#define CHECKBOXHEIGHT (8+1)
+#define RADIOHEIGHT (8+1)
+#define EDITHEIGHT (12+1)
+#define LISTHEIGHT (11+1)
 #define LISTINCREMENT 8
-#define COMBOHEIGHT 12
-#define PUSHBTNHEIGHT 14
-#define PROGBARHEIGHT 14
+#define COMBOHEIGHT (12+1)
+#define PUSHBTNHEIGHT (14+1)
+#define PROGBARHEIGHT (14+1)
 
 void ctlposinit(struct ctlpos *cp, HWND hwnd,
 		int leftborder, int rightborder, int topborder)
 {
     RECT r, r2;
     cp->hwnd = hwnd;
-    cp->font = SendMessage(hwnd, WM_GETFONT, 0, 0);
+    cp->font = l10n_getfont (SendMessage(hwnd, WM_GETFONT, 0, 0));
     cp->ypos = topborder;
     GetClientRect(hwnd, &r);
     r2.left = r2.top = 0;
@@ -192,7 +192,7 @@ void combobox(struct ctlpos *cp, char *text, int staticid, int listid)
     r.top = cp->ypos;
     r.bottom = COMBOHEIGHT * 10;
     doctl(cp, r, "COMBOBOX",
-	  WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL |
+	  WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | CBS_AUTOHSCROLL |
 	  CBS_DROPDOWN | CBS_HASSTRINGS, WS_EX_CLIENTEDGE, "", listid);
     cp->ypos += COMBOHEIGHT + GAPBETWEEN;
 }
@@ -1163,27 +1163,54 @@ void progressbar(struct ctlpos *cp, int id)
  */
 static char *shortcut_escape(const char *text, char shortcut)
 {
+	int text_len;
     char *ret;
     char const *p;
     char *q;
+    char *r, lastchar = '\0';
+    int search;
 
     if (!text)
 	return NULL;		       /* sfree won't choke on this */
 
-    ret = snewn(2*strlen(text)+1, char);   /* size potentially doubles! */
+	text_len = strlen(text);
+	ret = snewn(text_len > 4 ? 2*text_len+1 : text_len + 5, char);   /* size potentially doubles! */
     shortcut = tolower((unsigned char)shortcut);
 
     p = text;
+    search = 1;
+    while (*p) {
+	 r = CharNext (p);
+	 if (r - p > 1) {
+	      search = 0;
+	      break;
+	 }
+	 p = r;
+    }
+    p = text;
     q = ret;
     while (*p) {
-	if (shortcut != NO_SHORTCUT &&
+	if (search && shortcut != NO_SHORTCUT &&
 	    tolower((unsigned char)*p) == shortcut) {
 	    *q++ = '&';
 	    shortcut = NO_SHORTCUT;    /* stop it happening twice */
 	} else if (*p == '&') {
 	    *q++ = '&';
 	}
-	*q++ = *p++;
+	lastchar = *p;
+	r = CharNext (p);
+	while (p != r)
+	     *q++ = *p++;
+    }
+    if (shortcut != NO_SHORTCUT) { /* Japanese style shortcut */
+	 if (lastchar == ':')
+	      q--;
+	 *q++ = '(';
+	 *q++ = '&';
+	 *q++ = toupper(shortcut);
+	 *q++ = ')';
+	 if (lastchar == ':')
+	      *q++ = lastchar;
     }
     *q = '\0';
     return ret;
@@ -1627,8 +1654,14 @@ void winctrl_layout(struct dlgparam *dp, struct winctrls *wc,
 	    escaped = shortcut_escape(ctrl->fileselect.label,
 				      ctrl->fileselect.shortcut);
 	    shortcuts[nshortcuts++] = ctrl->fileselect.shortcut;
+	    {
+	      char *browse;
+
+	      browse = l10n_dupstr ("Bro&wse...");
 	    editbutton(&pos, escaped, base_id, base_id+1,
-		       "Bro&wse...", base_id+2);
+		       browse, base_id+2);
+	      sfree (browse);
+	    }
 	    shortcuts[nshortcuts++] = 'w';
 	    sfree(escaped);
 	    break;
@@ -1638,7 +1671,13 @@ void winctrl_layout(struct dlgparam *dp, struct winctrls *wc,
 				      ctrl->fontselect.shortcut);
 	    shortcuts[nshortcuts++] = ctrl->fontselect.shortcut;
 	    statictext(&pos, escaped, 1, base_id);
-	    staticbtn(&pos, "", base_id+1, "Change...", base_id+2);
+	    {
+	      char *change;
+
+	      change = l10n_dupstr ("Change...");
+	    staticbtn(&pos, "", base_id+1, change, base_id+2);
+	      sfree (change);
+	    }
 	    sfree(escaped);
 	    data = snew(FontSpec);
 	    break;
@@ -2239,12 +2278,13 @@ void dlg_text_set(union control *ctrl, void *dlg, char const *text)
     SetDlgItemText(dp->hwnd, c->base_id, text);
 }
 
-void dlg_label_change(union control *ctrl, void *dlg, char const *text)
+void dlg_label_change(union control *ctrl, void *dlg, char const *text2)
 {
     struct dlgparam *dp = (struct dlgparam *)dlg;
     struct winctrl *c = dlg_findbyctrl(dp, ctrl);
     char *escaped = NULL;
     int id = -1;
+    char *text = l10n_dupstr (text2);
 
     assert(c);
     switch (c->ctrl->generic.type) {
@@ -2284,6 +2324,7 @@ void dlg_label_change(union control *ctrl, void *dlg, char const *text)
 	SetDlgItemText(dp->hwnd, id, escaped);
 	sfree(escaped);
     }
+    sfree (text);
 }
 
 void dlg_filesel_set(union control *ctrl, void *dlg, Filename fn)

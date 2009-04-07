@@ -59,7 +59,11 @@
 #elif defined RELEASE
 
 #define VERSION_TEXT "Release " STR(RELEASE)
+#if (!defined SVN_REV) || (SVN_REV == 0)
 #define BINARY_VERSION BASE_VERSION,0,0
+#else
+#define BINARY_VERSION BASE_VERSION,0,SVN_REV
+#endif
 
 #elif defined SVN_REV
 

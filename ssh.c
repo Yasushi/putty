@@ -8214,6 +8214,15 @@ static void ssh2_msg_disconnect(Ssh ssh, struct Packet *pktin)
     }
     logevent(buf);
     sfree(buf);
+#if _MSC_VER >= 1400
+	{
+		static int enabled = 0;
+		if (!enabled) {
+			_set_printf_count_output(1);
+			enabled = 1;
+		}
+	}
+#endif
     buf = dupprintf("Disconnection message text: %n%.*s",
 		    &nowlen, msglen, msg);
     logevent(buf);

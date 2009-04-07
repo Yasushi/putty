@@ -1184,6 +1184,7 @@ static void term_schedule_vbell(Terminal *term, int already_started,
  */
 static void power_on(Terminal *term, int clear)
 {
+    if (in_utf (term)) term->ucsdata->iso2022 = !iso2022_init (&term->ucsdata->iso2022_data, term->cfg.line_codepage, 0);
     term->alt_x = term->alt_y = 0;
     term->savecurs.x = term->savecurs.y = 0;
     term->alt_savecurs.x = term->alt_savecurs.y = 0;
@@ -2501,18 +2502,27 @@ static void term_out(Terminal *term)
     int unget;
     unsigned char localbuf[256], *chars;
     int nchars = 0;
+    int iso2022;
+    struct iso2022_data *iso2022_data_p;
 
     unget = -1;
 
+    iso2022 = in_utf (term) && term->ucsdata->iso2022;
+    if (iso2022) iso2022_data_p = &term->ucsdata->iso2022_data;
     chars = NULL;		       /* placate compiler warnings */
-    while (nchars > 0 || unget != -1 || bufchain_size(&term->inbuf) > 0) {
+    while (nchars > 0 || unget != -1 || bufchain_size(&term->inbuf) > 0 || (iso2022 && iso2022_buflen (iso2022_data_p) > 0)) {
 	if (unget == -1) {
+	    if (iso2022 && term->termstate == TOPLEVEL) iso2022_clearesc (iso2022_data_p);
+	    if (!iso2022 || !iso2022_buflen (iso2022_data_p)) {
 	    if (nchars == 0) {
 		void *ret;
 		bufchain_prefix(&term->inbuf, &ret, &nchars);
 		if (nchars > sizeof(localbuf))
 		    nchars = sizeof(localbuf);
 		memcpy(localbuf, ret, nchars);
+		if (iso2022) {
+		     iso2022_autodetect_put (iso2022_data_p, localbuf, nchars);
+		}
 		bufchain_consume(&term->inbuf, nchars);
 		chars = localbuf;
 		assert(chars != NULL);
@@ -2526,6 +2536,12 @@ static void term_out(Terminal *term)
 	     */
 	    if (term->cfg.logtype == LGTYP_DEBUG && term->logctx)
 		logtraffic(term->logctx, (unsigned char) c, LGTYP_DEBUG);
+	    if (iso2022) iso2022_put (iso2022_data_p, c);
+	    }
+	    if (iso2022) {
+		if (iso2022_buflen (iso2022_data_p) > 0) c = iso2022_getbuf (iso2022_data_p);
+		else continue;
+	    }
 	} else {
 	    c = unget;
 	    unget = -1;
@@ -2635,6 +2651,7 @@ static void term_out(Terminal *term)
 		    /* The UTF-16 surrogates are not nice either. */
 		    /*       The standard give the option of decoding these: 
 		     *       I don't want to! */
+		    if (!iso2022) /* for VT100 graphics */
 		    if (c >= 0xD800 && c < 0xE000)
 			c = UCSERR;
 
@@ -2908,12 +2925,14 @@ static void term_out(Terminal *term)
 		{
 		    termline *cline = scrlineptr(term->curs.y);
 		    int width = 0;
+		    if (!iso2022) {
 		    if (DIRECT_CHAR(c))
 			width = 1;
 		    if (!width)
 			width = (term->cfg.cjk_ambig_wide ?
 				 mk_wcwidth_cjk((wchar_t) c) :
 				 mk_wcwidth((wchar_t) c));
+		    } else width = iso2022_width (iso2022_data_p, (wchar_t) c);
 
 		    if (term->wrapnext && term->wrap && width > 0) {
 			cline->lattr |= LATTR_WRAPPED;
@@ -2932,6 +2951,25 @@ static void term_out(Terminal *term)
 			incpos(cursplus);
 			check_selection(term, term->curs, cursplus);
 		    }
+		    if (term->cfg.logtype == LGTYP_ASCII && iso2022
+			    && term->utf_char == (int) c
+			    && 0x7f < c && c < 0x80000000
+			    && term->logctx) {
+			// output non ASCII characters by UTF-8 encoding
+			int i;
+			for (i = 5; i > 1 && (c & (0x1f << (i * 5 + 1))) == 0; i--)
+			    ;
+			{
+			    int shifts = i * 6;
+			    int mask = (1 << (5 - i + 1)) - 1;
+			    int prebits = (0xff & ~((1 << (5 - i + 2)) - 1));
+			    logtraffic(term->logctx, (unsigned char) (prebits | ((c >> shifts) & mask)), LGTYP_ASCII);
+			    do {
+				shifts -= 6;
+				logtraffic(term->logctx, (unsigned char) (0x80 | ((c >> shifts) & 0x3f)), LGTYP_ASCII);
+			    } while (shifts > 0);
+			}
+		    } else
 		    if (((c & CSET_MASK) == CSET_ASCII ||
 			 (c & CSET_MASK) == 0) &&
 			term->logctx)

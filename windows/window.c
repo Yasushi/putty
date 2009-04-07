@@ -29,6 +29,12 @@
 #include <richedit.h>
 #include <mmsystem.h>
 
+/* > transparent background patch */
+#include <wingdi.h>  /* AlphaBlend */
+/* #include <winbase.h> */  /* OutputDebugString */
+/* #define XTRANS_AVOID_UL_BUG */
+/* < */
+
 /* From MSDN: In the WM_SYSCOMMAND message, the four low-order bits of
  * wParam are used by Windows, and should be masked off, so we shouldn't
  * attempt to store information in them. Hence all these identifiers have
@@ -147,6 +153,12 @@ struct agent_callback {
     int len;
 };
 
+/* > transparent background patch */
+static HBITMAP background_bmp = NULL;
+static void xtrans_paint_bg(HDC, int, int, int, int);
+static void (*xtrans_paint_background)(HDC, int, int, int, int) = xtrans_paint_bg;
+/* < */
+
 #define FONT_NORMAL 0
 #define FONT_BOLD 1
 #define FONT_UNDERLINE 2
@@ -197,6 +209,230 @@ static char *window_name, *icon_name;
 static int compose_state = 0;
 
 static UINT wm_mousewheel = WM_MOUSEWHEEL;
+
+static void ExtTextOutW2 (HDC, int, int, UINT, const RECT *, WCHAR *, UINT, const int *, int);
+
+/* > transparent background patch */
+void xtrans_paint_bg(HDC hdc, int x, int y, int width, int height)
+{
+    HDC memhdc;
+    HBITMAP defbmp;
+
+    memhdc = CreateCompatibleDC(hdc);
+    defbmp = SelectObject(memhdc, background_bmp);
+
+    BitBlt(hdc, x, y, width, height, memhdc, x, y, SRCCOPY);
+
+    SelectObject(memhdc, defbmp);
+    DeleteDC(memhdc);
+}
+
+void xtrans_paint_bg_fwp(HDC hdc, int x, int y, int width, int height)
+{
+    HDC memhdc;
+    HBITMAP defbmp;
+    POINT point;
+
+    point.x = x;
+    point.y = y;
+    ClientToScreen(hwnd, &point);
+
+    memhdc = CreateCompatibleDC(hdc);
+    defbmp = SelectObject(memhdc, background_bmp);
+
+    BitBlt(hdc, x, y, width, height, memhdc, point.x, point.y, SRCCOPY);
+
+    SelectObject(memhdc, defbmp);
+    DeleteDC(memhdc);
+}
+
+void xtrans_free_background()
+{
+    if (background_bmp) {
+        DeleteObject(background_bmp);
+        background_bmp = NULL;
+    }
+}
+
+void xtrans_daub_with_bgcolor(HDC hdc, int width, int height)
+{
+    HPEN pen, defpen;
+    HBRUSH brush, defbrush;
+
+    pen = CreatePen(PS_SOLID, 0, colours[258]);
+    defpen = SelectObject(hdc, pen);
+    brush = CreateSolidBrush(colours[258]);
+    defbrush = SelectObject(hdc, brush);
+
+    Rectangle(hdc, 0, 0, width, height);
+
+    SelectObject(hdc, defpen);
+    DeleteObject(pen);
+    SelectObject(hdc, defbrush);
+    DeleteObject(brush);
+}
+
+void xtrans_set_background()
+{
+    HDC hdc, memhdc;
+    HBITMAP defbmp;
+
+    BLENDFUNCTION bf = { AC_SRC_OVER, 0, 0, 0 };
+
+    RECT rect, up_rect;
+    int width, height;
+
+    if (cfg.transparent_mode == -1) {
+        cfg.transparent_mode = 1;
+        if (background_bmp)
+            xtrans_free_background();
+    }
+
+    bf.SourceConstantAlpha = (BYTE) cfg.shading;
+
+    GetClientRect(hwnd, &rect);
+
+    InvalidateRect(hwnd, NULL, FALSE);
+    GetUpdateRect(hwnd, &up_rect, FALSE);
+    width = up_rect.right - up_rect.left;
+    height = up_rect.bottom - up_rect.top;
+
+    hdc = GetDC(hwnd);
+    memhdc = CreateCompatibleDC(hdc);
+
+    if (background_bmp == NULL)
+        background_bmp = CreateCompatibleBitmap(hdc, rect.right, rect.bottom);
+
+    defbmp = SelectObject(memhdc, background_bmp);
+
+    xtrans_daub_with_bgcolor(memhdc, rect.right, rect.bottom);
+    PaintDesktop(hdc);
+    AlphaBlend(memhdc, up_rect.left, up_rect.top, width, height,
+               hdc, up_rect.left, up_rect.top, width, height, bf);
+
+    SelectObject(memhdc, defbmp);
+    DeleteDC(memhdc);
+    ReleaseDC(hwnd, hdc);
+}
+
+void xtrans_set_bitmap()
+{
+    if (cfg.bgimg_file.path[0] != '\0') {
+        if (background_bmp)
+            xtrans_free_background();
+        background_bmp = LoadImage(0, cfg.bgimg_file.path,
+                                   IMAGE_BITMAP, 0, 0,
+                                   LR_LOADFROMFILE | LR_DEFAULTSIZE);
+    }
+
+    if (background_bmp == NULL) {
+        cfg.transparent_mode = 0;
+        return;
+    }
+
+    if (cfg.use_alphablend) {
+        HDC hdc, memhdc, memhdc_mask;
+        HBITMAP bmp_mask, defbmp_mask, defbmp;
+        BLENDFUNCTION bf = { AC_SRC_OVER, 0, 0, 0 };
+        int width, height;
+
+        bf.SourceConstantAlpha = (BYTE) cfg.shading;
+
+        hdc = GetDC(hwnd);
+        memhdc = CreateCompatibleDC(hdc);
+        memhdc_mask = CreateCompatibleDC(hdc);
+        defbmp = SelectObject(memhdc, background_bmp);
+        width = GetDeviceCaps(memhdc, HORZRES);
+        height = GetDeviceCaps(memhdc, VERTRES);
+        bmp_mask = CreateCompatibleBitmap(hdc, width, height);
+        ReleaseDC(hwnd, hdc);
+        defbmp_mask = SelectObject(memhdc_mask, bmp_mask);
+
+        xtrans_daub_with_bgcolor(memhdc_mask, width, height);
+        AlphaBlend(memhdc_mask, 0, 0, width, height,
+                   memhdc, 0, 0, width, height, bf);
+
+        SelectObject(memhdc_mask, defbmp_mask);
+        DeleteDC(memhdc_mask);
+        SelectObject(memhdc, defbmp);
+        DeleteDC(memhdc);
+
+        DeleteObject(background_bmp);
+        background_bmp = bmp_mask;
+    }
+}
+
+
+void xtrans_load_bitmap()
+{
+    HANDLE find_handle;
+    WIN32_FIND_DATA find_data;
+
+    char pass[MAX_PATH], shading[4];
+    char *cp;
+    int i;
+
+    if (cfg.transparent_mode == 2 && cfg.bgimg_file.path[0] != '\0')
+        return;
+
+    GetModuleFileName(NULL, pass, MAX_PATH);
+    cp = strrchr(pass, '\\');
+    if (cp == NULL)
+        return;
+    strcpy(++cp, "putty*.bmp");
+
+    find_handle = FindFirstFile(pass, &find_data);
+    if (find_handle == INVALID_HANDLE_VALUE)
+        return;
+    FindClose(find_handle);
+    strcpy(cp, find_data.cFileName);
+
+    /*
+     * putty76.bmp
+     *      ^^ shading value (0 - 255)
+     */
+    if (background_bmp)
+        xtrans_free_background();
+    background_bmp = LoadImage(0, pass, IMAGE_BITMAP, 0, 0,
+                               LR_LOADFROMFILE | LR_DEFAULTSIZE);
+    cfg.transparent_mode = 2;
+
+    cp += 5;
+    for (i = 0; i < 3 && isdigit(*cp); i++, cp++)
+        shading[i] = *cp;
+    shading[i+1] = '\0';
+
+    if (i > 0) {
+        cfg.use_alphablend = 1;
+        cfg.shading = atoi(shading);
+    }
+}
+
+
+void xtrans_init(int reinit)
+{
+    if (reinit)
+        xtrans_load_bitmap();
+
+    if (cfg.shading < 0 || 255 < cfg.shading) {
+        if (cfg.transparent_mode == 1)
+            cfg.transparent_mode = 0;
+        cfg.shading = 0;
+    }
+
+    if (cfg.transparent_mode == 0 && background_bmp)
+        xtrans_free_background();
+
+    if (cfg.transparent_mode == 1) {
+        xtrans_set_background();
+        xtrans_paint_background = xtrans_paint_bg;
+    }
+    else if (cfg.transparent_mode == 2) {
+        xtrans_set_bitmap();
+        xtrans_paint_background = xtrans_paint_bg_fwp;
+    }
+}
+/* < */
 
 /* Dummy routine, only required in plink. */
 void ldisc_update(void *frontend, int echo, int edit)
@@ -314,6 +550,9 @@ static void close_session(void)
     }
 }
 
+extern int use_inifile;
+extern char inifile[2 * MAX_PATH + 10];
+
 int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
 {
     WNDCLASS wndclass;
@@ -430,6 +669,22 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
 	    char **argv;
 	    
 	    split_into_argv(cmdline, &argc, &argv, NULL);
+
+            if (argc > 1 && !strcmp(argv[0], "-ini") && *(argv[1]) != '\0') {
+                char* dummy;
+                DWORD attributes;
+                GetFullPathName(argv[1], sizeof inifile, inifile, &dummy);
+                attributes = GetFileAttributes(inifile);
+                if (attributes != 0xFFFFFFFF && (attributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
+                    HANDLE handle = CreateFile(inifile, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+                    if (handle != INVALID_HANDLE_VALUE) {
+                        CloseHandle(handle);
+                        use_inifile = 1;
+                        argc -= 2;
+                        argv += 2;
+                    }
+                }
+            }
 
 	    for (i = 0; i < argc; i++) {
 		char *p = argv[i];
@@ -619,7 +874,23 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
 	wndclass.lpfnWndProc = WndProc;
 	wndclass.cbClsExtra = 0;
 	wndclass.cbWndExtra = 0;
+	if (cfg.ctrl_tab_switch)
+	    wndclass.cbWndExtra += 8;
 	wndclass.hInstance = inst;
+	wndclass.hIcon = NULL;
+	if (cfg.iconfile.path[0] != '\0') {
+	    char buffer[sizeof cfg.iconfile.path];
+	    char* comma;
+	    int index = 0;
+	    strcpy(buffer, cfg.iconfile.path);
+	    comma = strrchr(buffer, ',');
+	    if (comma != NULL) {
+		*comma = '\0';
+		index = atoi(comma + 1);
+	    }
+	    wndclass.hIcon = ExtractIcon(inst, buffer, index);
+	}
+	if (wndclass.hIcon == NULL)
 	wndclass.hIcon = LoadIcon(inst, MAKEINTRESOURCE(IDI_MAINICON));
 	wndclass.hCursor = LoadCursor(NULL, IDC_IBEAM);
 	wndclass.hbrBackground = NULL;
@@ -682,6 +953,14 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
     logctx = log_init(NULL, &cfg);
     term_provide_logctx(term, logctx);
     term_size(term, cfg.height, cfg.width, cfg.savelines);
+
+	/* > transparent background patch */
+    /* Avoid Unicode line drawing bug. */
+#ifdef XTRANS_AVOID_UL_BUG
+    if (cfg.vtmode == VT_UNICODE && cfg.transparent_mode)
+        cfg.vtmode = VT_POORMAN;
+#endif
+	/* < */
 
     /*
      * Initialise the fonts, simultaneously correcting the guesses
@@ -801,12 +1080,20 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
     ShowWindow(hwnd, show);
     SetForegroundWindow(hwnd);
 
+    /* > transparent background patch */
+    xtrans_load_bitmap();
+    /* < */
+
     /*
      * Set the palette up.
      */
     pal = NULL;
     logpal = NULL;
     init_palette();
+
+    /* > transparent background patch */
+    xtrans_init(0);
+    /* < */
 
     term_set_focus(term, GetForegroundWindow() == hwnd);
     UpdateWindow(hwnd);
@@ -829,6 +1116,9 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
 	    sfree(handles);
 
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+	    if (msg.hwnd == hwnd && msg.message == WM_ENACT_PENDING_NETEVENT)
+	        continue;
+
 	    if (msg.message == WM_QUIT)
 		goto finished;	       /* two-level break */
 
@@ -879,6 +1169,10 @@ void cleanup_exit(int code)
 #endif
     }
     shutdown_help();
+
+	/* > transparent background patch */
+    xtrans_free_background();
+	/* < */
 
     exit(code);
 }
@@ -1340,6 +1634,84 @@ debug(("general_textout: done, xn=%d\n", xn));
     assert(xn - x == lprc->right - lprc->left);
 }
 
+static void general_textout2(HDC hdc, int x, int y, CONST RECT *lprc,
+			    unsigned short *lpString, UINT cbCount,
+			    CONST INT *lpDx, int opaque, int wide, int iso2022)
+{
+    int i, j, xp, xn;
+    RECT newrc;
+
+#ifdef FIXME_REMOVE_BEFORE_CHECKIN
+int k;
+debug(("general_textout: %d,%d", x, y));
+for(k=0;k<cbCount;k++)debug((" U+%04X", lpString[k]));
+debug(("\n           rect: [%d,%d %d,%d]", lprc->left, lprc->top, lprc->right, lprc->bottom));
+debug(("\n"));
+#endif
+
+    xp = xn = x;
+
+    for (i = 0; i < (int)cbCount ;) {
+	int rtl = is_rtl(lpString[i]);
+
+	xn += lpDx[i];
+
+	for (j = i+1; j < (int)cbCount; j++) {
+	    if (rtl != is_rtl(lpString[j]))
+		break;
+	    xn += lpDx[j];
+	}
+
+	/*
+	 * Now [i,j) indicates a maximal substring of lpString
+	 * which should be displayed using the same textout
+	 * function.
+	 */
+	if (rtl) {
+	    newrc.left = lprc->left + xp - x;
+	    newrc.right = lprc->left + xn - x;
+	    newrc.top = lprc->top;
+	    newrc.bottom = lprc->bottom;
+#ifdef FIXME_REMOVE_BEFORE_CHECKIN
+{
+int k;
+debug(("  exact_textout: %d,%d", xp, y));
+for(k=0;k<j-i;k++)debug((" U+%04X", lpString[i+k]));
+debug(("\n           rect: [%d,%d %d,%d]\n", newrc.left, newrc.top, newrc.right, newrc.bottom));
+}
+#endif
+	    exact_textout(hdc, xp, y, &newrc, lpString+i, j-i, lpDx+i, opaque);
+	} else {
+#ifdef FIXME_REMOVE_BEFORE_CHECKIN
+{
+int k;
+debug(("  ExtTextOut   : %d,%d", xp, y));
+for(k=0;k<j-i;k++)debug((" U+%04X", lpString[i+k]));
+debug(("\n           rect: [%d,%d %d,%d]\n", newrc.left, newrc.top, newrc.right, newrc.bottom));
+}
+#endif
+	    newrc.left = lprc->left + xp - x;
+	    newrc.right = lprc->left + xn - x;
+	    newrc.top = lprc->top;
+	    newrc.bottom = lprc->bottom;
+	  if(!iso2022)
+	    ExtTextOutW(hdc, xp, y, ETO_CLIPPED | (opaque ? ETO_OPAQUE : 0),
+			&newrc, lpString+i, j-i, lpDx+i);
+	  else
+	    ExtTextOutW2(hdc, xp, y, ETO_CLIPPED | (opaque ? ETO_OPAQUE : 0),
+			&newrc, lpString+i, j-i, lpDx+i, wide);
+	}
+
+	i = j;
+	xp = xn;
+    }
+
+#ifdef FIXME_REMOVE_BEFORE_CHECKIN
+debug(("general_textout: done, xn=%d\n", xn));
+#endif
+    assert(xn - x == lprc->right - lprc->left);
+}
+
 /*
  * Initialise all the fonts we will need initially. There may be as many as
  * three or as few as one.  The other (poentially) twentyone fonts are done
@@ -1660,6 +2032,15 @@ static void reset_window(int reinit) {
     win_width  = cr.right - cr.left;
     win_height = cr.bottom - cr.top;
 
+	/* > transparent background patch */
+    if (cfg.transparent_mode == 2) {
+        if (cfg.stop_when_moving)
+            InvalidateRect(hwnd, NULL, FALSE);
+    }
+    else if (cfg.transparent_mode)
+        xtrans_set_background();
+	/* < */
+
     if (cfg.resize_action == RESIZE_DISABLED) reinit = 2;
 
     /* Are we being forced to reload the fonts ? */
@@ -1930,6 +2311,43 @@ static int is_shift_pressed(void)
     return FALSE;
 }
 
+struct ctrl_tab_info {
+    int direction;
+    HWND  self;
+    DWORD self_hi_date_time;
+    DWORD self_lo_date_time;
+    HWND  next;
+    DWORD next_hi_date_time;
+    DWORD next_lo_date_time;
+    int   next_self;
+};
+
+static BOOL CALLBACK CtrlTabWindowProc(HWND hwnd, LPARAM lParam) {
+    struct ctrl_tab_info* info = (struct ctrl_tab_info*) lParam;
+    char class_name[16];
+    int wndExtra;
+    if (info->self != hwnd && (wndExtra = GetClassLong(hwnd, GCL_CBWNDEXTRA)) >= 8 && GetClassName(hwnd, class_name, sizeof class_name) >= 5 && memcmp(class_name, "PuTTY", 5) == 0) {
+        DWORD hwnd_hi_date_time = GetWindowLong(hwnd, wndExtra - 8);
+        DWORD hwnd_lo_date_time = GetWindowLong(hwnd, wndExtra - 4);
+        int hwnd_self, hwnd_next;
+	hwnd_self = hwnd_hi_date_time - info->self_hi_date_time;
+	if (hwnd_self == 0) 
+	    hwnd_self = hwnd_lo_date_time - info->self_lo_date_time;
+	hwnd_self *= info->direction;
+        hwnd_next = hwnd_hi_date_time - info->next_hi_date_time;
+	if (hwnd_next == 0) 
+	    hwnd_next = hwnd_lo_date_time - info->next_lo_date_time;
+	hwnd_next *= info->direction;
+        if (hwnd_self > 0 && hwnd_next < 0 || (hwnd_self > 0 || hwnd_next < 0) && info->next_self <= 0) {
+            info->next              = hwnd;
+            info->next_hi_date_time = hwnd_hi_date_time;
+            info->next_lo_date_time = hwnd_lo_date_time;
+            info->next_self         = hwnd_self;
+        }
+    }
+    return TRUE;
+}
+
 static int resizing;
 
 void notify_remote_exit(void *fe)
@@ -1987,6 +2405,13 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 	}
 	return 0;
       case WM_CREATE:
+        if (cfg.ctrl_tab_switch) {
+	    int wndExtra = GetClassLong(hwnd, GCL_CBWNDEXTRA);
+	    FILETIME filetime;
+	    GetSystemTimeAsFileTime(&filetime);
+	    SetWindowLong(hwnd, wndExtra - 8, filetime.dwHighDateTime);
+	    SetWindowLong(hwnd, wndExtra - 4, filetime.dwLowDateTime);
+        }
 	break;
       case WM_CLOSE:
 	{
@@ -2151,6 +2576,15 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 		pal = NULL;
 		cfgtopalette();
 		init_palette();
+
+        /* > transparent background patch */
+		xtrans_init(1);
+        /* Avoid Unicode line drawing bug. */
+#ifdef XTRANS_AVOID_UL_BUG
+        if (cfg.vtmode == VT_UNICODE && cfg.transparent_mode)
+            cfg.vtmode = VT_POORMAN;
+#endif
+        /* < */
 
 		/* Pass new config data to the terminal */
 		term_reconfig(term, &cfg);
@@ -2568,6 +3002,13 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 			offset_width+font_width*term->cols,
 			offset_height+font_height*term->rows);
 
+		/* > transparent background patch */
+		if (cfg.transparent_mode > 0)
+            (*xtrans_paint_background)(hdc, p.rcPaint.left, p.rcPaint.top,
+                                       p.rcPaint.right - p.rcPaint.left,
+                                       p.rcPaint.bottom - p.rcPaint.top);
+		else
+		/* < */
 		Rectangle(hdc, p.rcPaint.left, p.rcPaint.top, 
 			  p.rcPaint.right, p.rcPaint.bottom);
 
@@ -2597,8 +3038,24 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 	pend_netevent_lParam = lParam;
 	if (WSAGETSELECTEVENT(lParam) != FD_READ)
 	    enact_pending_netevent();
+	else
+	    PostMessage(hwnd, WM_ENACT_PENDING_NETEVENT, 0, 0);
 
 	net_pending_errors();
+	return 0;
+      case WM_ENACT_PENDING_NETEVENT:
+        {
+	    MSG msg;
+	    while (PeekMessage(&msg, hwnd, WM_ENACT_PENDING_NETEVENT, WM_ENACT_PENDING_NETEVENT, PM_REMOVE))
+		;
+	    if (HIWORD(GetQueueStatus(QS_ALLPOSTMESSAGE | QS_POSTMESSAGE)) != 0) {
+		PostMessage(hwnd, WM_ENACT_PENDING_NETEVENT, 0, 0);
+	    } else {
+		if (pending_netevent)
+		    enact_pending_netevent();
+		net_pending_errors();
+	    }
+	}
 	return 0;
       case WM_SETFOCUS:
 	term_set_focus(term, TRUE);
@@ -2629,6 +3086,14 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 #ifdef RDB_DEBUG_PATCH
 	debug((27, "WM_EXITSIZEMOVE"));
 #endif
+	/* > transparent background patch */
+	if (cfg.transparent_mode == 2) {
+        if (cfg.stop_when_moving)
+            InvalidateRect(hwnd, NULL, FALSE);
+    }
+    else if (cfg.transparent_mode)
+        xtrans_set_background();
+	/* < */
 	if (need_backend_resize) {
 	    term_size(term, cfg.height, cfg.width, cfg.savelines);
 	    InvalidateRect(hwnd, NULL, TRUE);
@@ -2729,6 +3194,10 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 	fullscr_on_max = TRUE;
 	break;
       case WM_MOVE:
+	/* > transparent background patch */
+	if (cfg.transparent_mode == 2 && (! cfg.stop_when_moving))
+        InvalidateRect(hwnd, NULL, FALSE);
+	/* < */
 	sys_cursor_update();
 	break;
       case WM_SIZE:
@@ -2741,6 +3210,12 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 		"...",
 	    LOWORD(lParam), HIWORD(lParam)));
 #endif
+	/* > transparent background patch */
+	if(cfg.transparent_mode == 1)
+        cfg.transparent_mode = -1;
+	else if (cfg.transparent_mode == 2)
+        InvalidateRect(hwnd, NULL, FALSE);
+	/* < */
 	if (wParam == SIZE_MINIMIZED)
 	    SetWindowText(hwnd,
 			  cfg.win_name_always ? window_name : icon_name);
@@ -2865,6 +3340,18 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 	return FALSE;
       case WM_KEYDOWN:
       case WM_SYSKEYDOWN:
+         if (cfg.ctrl_tab_switch && wParam == VK_TAB && GetKeyState(VK_CONTROL) < 0 && GetKeyState(VK_MENU) >= 0) {
+             struct ctrl_tab_info info = {
+                  GetKeyState(VK_SHIFT) < 0 ? 1 : -1,
+                  hwnd,
+             };
+             info.next_hi_date_time = info.self_hi_date_time = GetWindowLong(hwnd, 0);
+             info.next_lo_date_time = info.self_lo_date_time = GetWindowLong(hwnd, 4);
+             EnumWindows(CtrlTabWindowProc, (LPARAM) &info);
+             if (info.next != NULL)
+                 SetForegroundWindow(info.next);
+             return 0;
+         }
       case WM_KEYUP:
       case WM_SYSKEYUP:
 	/*
@@ -2885,10 +3372,10 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT message,
 	    int len;
 
 	    if (wParam == VK_PROCESSKEY) { /* IME PROCESS key */
-		if (message == WM_KEYDOWN) {
+		if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN) {
 		    MSG m;
 		    m.hwnd = hwnd;
-		    m.message = WM_KEYDOWN;
+		    m.message = message;
 		    m.wParam = wParam;
 		    m.lParam = lParam & 0xdfff;
 		    TranslateMessage(&m);
@@ -3154,6 +3641,15 @@ void do_text_internal(Context ctx, int x, int y, wchar_t *text, int len,
     int text_adjust = 0;
     static int *IpDx = 0, IpDxLEN = 0;
 
+	/* > transparent background patch */
+	UINT exttextout_options;
+
+	if (cfg.transparent_mode)
+        exttextout_options = ETO_CLIPPED;
+	else
+        exttextout_options = ETO_CLIPPED | ETO_OPAQUE;
+	/* < */
+
     lattr &= LATTR_MODE;
 
     char_width = fnt_width = font_width * (1 + (lattr != LATTR_NORM));
@@ -3279,10 +3775,20 @@ void do_text_internal(Context ctx, int x, int y, wchar_t *text, int len,
     SelectObject(hdc, fonts[nfont]);
     SetTextColor(hdc, fg);
     SetBkColor(hdc, bg);
+	/* > transparent background patch */
+	if (cfg.transparent_mode && (nbg == 258)) {
+        SetBkMode(hdc, TRANSPARENT);
+        (*xtrans_paint_background)(hdc, x, y, char_width * len, font_height);
+	}
+    else {
+	/* < */
     if (attr & TATTR_COMBINING)
 	SetBkMode(hdc, TRANSPARENT);
     else
 	SetBkMode(hdc, OPAQUE);
+	/* > transparent background patch */
+    }
+	/* < */
     line_box.left = x;
     line_box.top = y;
     line_box.right = x + char_width * len;
@@ -3328,15 +3834,17 @@ void do_text_internal(Context ctx, int x, int y, wchar_t *text, int len,
 	if (nlen <= 0)
 	    return;		       /* Eeek! */
 
-	ExtTextOutW(hdc, x,
+	ExtTextOutW2(hdc, x,
 		    y - font_height * (lattr == LATTR_BOT) + text_adjust,
-		    ETO_CLIPPED | ETO_OPAQUE, &line_box, uni_buf, nlen, IpDx);
+	/* > transparent background patch */
+		    exttextout_options, &line_box, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
+	/* < */
 	if (bold_mode == BOLD_SHADOW && (attr & ATTR_BOLD)) {
 	    SetBkMode(hdc, TRANSPARENT);
-	    ExtTextOutW(hdc, x - 1,
+	    ExtTextOutW2(hdc, x - 1,
 			y - font_height * (lattr ==
 					   LATTR_BOT) + text_adjust,
-			ETO_CLIPPED, &line_box, uni_buf, nlen, IpDx);
+			ETO_CLIPPED, &line_box, uni_buf, nlen, IpDx, !!(attr & ATTR_WIDE));
 	}
 
 	IpDx[0] = -1;
@@ -3354,7 +3862,9 @@ void do_text_internal(Context ctx, int x, int y, wchar_t *text, int len,
 
 	ExtTextOut(hdc, x,
 		   y - font_height * (lattr == LATTR_BOT) + text_adjust,
-		   ETO_CLIPPED | ETO_OPAQUE, &line_box, directbuf, len, IpDx);
+	/* > transparent background patch */
+		   exttextout_options, &line_box, directbuf, len, IpDx);
+	/* < */
 	if (bold_mode == BOLD_SHADOW && (attr & ATTR_BOLD)) {
 	    SetBkMode(hdc, TRANSPARENT);
 
@@ -3386,16 +3896,16 @@ void do_text_internal(Context ctx, int x, int y, wchar_t *text, int len,
 	    wbuf[i] = text[i];
 
 	/* print Glyphs as they are, without Windows' Shaping*/
-	general_textout(hdc, x, y - font_height * (lattr == LATTR_BOT) + text_adjust,
-			&line_box, wbuf, len, IpDx, !(attr & TATTR_COMBINING));
+	general_textout2(hdc, x, y - font_height * (lattr == LATTR_BOT) + text_adjust,
+			&line_box, wbuf, len, IpDx, !(attr & TATTR_COMBINING), !!(attr & ATTR_WIDE), in_utf (term) && term->ucsdata->iso2022);
 
 	/* And the shadow bold hack. */
 	if (bold_mode == BOLD_SHADOW && (attr & ATTR_BOLD)) {
 	    SetBkMode(hdc, TRANSPARENT);
-	    ExtTextOutW(hdc, x - 1,
+	    ExtTextOutW2(hdc, x - 1,
 			y - font_height * (lattr ==
 					   LATTR_BOT) + text_adjust,
-			ETO_CLIPPED, &line_box, wbuf, len, IpDx);
+			ETO_CLIPPED, &line_box, wbuf, len, IpDx, !!(attr & ATTR_WIDE));
 	}
     }
     if (lattr != LATTR_TOP && (force_manual_underline ||
@@ -3698,7 +4208,7 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
 	(HIWORD(lParam) & (KF_UP | KF_REPEAT)) == KF_REPEAT)
 	return 0;
 
-    if ((HIWORD(lParam) & KF_ALTDOWN) && (keystate[VK_RMENU] & 0x80) == 0)
+    if ((HIWORD(lParam) & KF_ALTDOWN) && (cfg.rightaltkey || (keystate[VK_RMENU] & 0x80) == 0))
 	left_alt = 1;
 
     key_down = ((HIWORD(lParam) & KF_UP) == 0);
@@ -3792,7 +4302,7 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
     }
 
     /* If a key is pressed and AltGr is not active */
-    if (key_down && (keystate[VK_RMENU] & 0x80) == 0 && !compose_state) {
+    if (key_down && (cfg.rightaltkey || (keystate[VK_RMENU] & 0x80) == 0) && !compose_state) {
 	/* Okay, prepare for most alts then ... */
 	if (left_alt)
 	    *p++ = '\033';
@@ -4391,6 +4901,13 @@ static int TranslateKey(UINT message, WPARAM wParam, LPARAM lParam,
 			term_seen_key_event(term);
 			if (ldisc)
 			    luni_send(ldisc, cbuf+!left_alt, 1+!!left_alt, 1);
+		    } else if (cfg.alt_metabit) {
+			if (left_alt) {
+			    char cbuf = (char) (ch | (1 << 7));
+			    ldisc_send(ldisc, &cbuf, 1, 1);
+			} else {
+			    lpage_send(ldisc, kbd_codepage, &ch, 1, 1);
+			}
 		    } else {
 			char cbuf[2];
 			cbuf[0] = '\033';
@@ -5421,4 +5938,119 @@ void agent_schedule_callback(void (*callback)(void *, void *, int),
     c->data = data;
     c->len = len;
     PostMessage(hwnd, WM_AGENT_CALLBACK, 0, (LPARAM)c);
+}
+
+/* (opt & ETO_CLIPPED) must not be zero. */
+static void
+ExtTextOutW2 (HDC hdc, int x, int y, UINT opt, const RECT *rc,
+	      WCHAR *str, UINT cnt, const int *dx, int wide)
+{
+  unsigned int i;
+  SIZE s;
+  RECT rc2;
+  int f;
+  int w95;
+  LONG cx2;
+  extern int iso2022_win95flag;
+
+  f = 0;
+  rc2 = *rc;
+  w95 = wide ? iso2022_win95flag : 0;
+  while (cnt)
+    {
+      cx2 = 0;
+      for (i = 0 ; i < cnt ; i++)
+	{
+	  GetTextExtentPoint32W (hdc, &str[i], 1, &s);
+	  if ((s.cx > *dx ||
+	       s.cx * 4 < *dx * 3) != f)
+	    break;
+	  if (f && cx2 != s.cx)
+	    {
+	      if (i)
+		break;
+	      cx2 = s.cx;
+	    }
+	  if ((w95 && !f) || (0x590 <= str[i] && str[i] <= 0x5ff))
+	    {
+	      i++;
+	      break;
+	    }
+	}
+      if (i)
+	{
+	  cnt -= i;
+	  rc2.right = cnt ? rc2.left + *dx * i : rc->right;
+	  if (f)
+	    {
+	      HDC dc;
+	      HBITMAP bm, oldbm;
+	      RECT rc3;
+
+	      GetTextExtentPoint32W (hdc, str, i, &s);
+	      rc3.left = rc3.top = 0;
+	      rc3.right = s.cx;
+	      rc3.bottom = s.cy;
+	      dc = CreateCompatibleDC (hdc);
+	      bm = CreateBitmap (max (s.cx, *dx * i),
+				 s.cy, 1, 1, 0);
+	      oldbm = SelectObject (dc, bm);
+	      SelectObject (dc, GetCurrentObject (hdc, OBJ_FONT));
+	      SetTextAlign (dc, TA_TOP | TA_LEFT | TA_NOUPDATECP);
+	      SetBkColor (dc, RGB (255, 255, 255));
+	      SetTextColor (dc, RGB (0, 0, 0));
+	      SetBkMode (dc, OPAQUE);
+	      ExtTextOutW (dc, 0, 0, ETO_OPAQUE, &rc3, str, i, 0);
+	      SetStretchBltMode (dc, BLACKONWHITE);
+	      StretchBlt (dc, 0, 0, *dx * i, s.cy,
+			  dc, 0, 0, s.cx, s.cy, SRCCOPY);
+	      {
+		HDC dc2;
+		HBITMAP bm2, oldbm2;
+
+		dc2 = CreateCompatibleDC (hdc);
+		bm2 = CreateCompatibleBitmap (hdc,
+					      rc2.right - rc2.left,
+					      rc2.bottom - rc2.top);
+		oldbm2 = SelectObject (dc2, bm2);
+		if (opt & ETO_OPAQUE)
+		  {
+		    RECT a;
+
+		    SetRect (&a, 0, 0, rc2.right - rc2.left,
+			     rc2.bottom - rc2.top);
+		    SetBkColor (dc2, GetBkColor (hdc));
+		    ExtTextOut (dc2, 0, 0, ETO_OPAQUE, &a, "", 0, 0);
+		  }
+		else
+		  BitBlt (dc2, 0, 0, rc2.right - rc2.left,
+			  rc2.bottom - rc2.top, hdc, rc2.left, rc2.top,
+			  SRCCOPY);
+		SetTextColor (dc2, RGB (0, 0, 0));
+		SetBkColor (dc2, RGB (255, 255, 255));
+		BitBlt (dc2, x - rc2.left, y - rc2.top, *dx * i,
+			s.cy, dc, 0, 0, SRCAND);
+		SetBkColor (dc2, RGB (0, 0, 0));
+		SetTextColor (dc2, GetTextColor (hdc));
+		BitBlt (dc2, x - rc2.left, y - rc2.top, *dx * i,
+			s.cy, dc, 0, 0, SRCPAINT);
+		BitBlt (hdc, rc2.left, rc2.top, rc2.right - rc2.left,
+			rc2.bottom - rc2.top, dc2, 0, 0,
+			SRCCOPY);
+		SelectObject (dc2, oldbm2);
+		DeleteDC (dc2);
+		DeleteObject (bm2);
+	      }
+	      SelectObject(dc, oldbm);
+	      DeleteDC(dc);
+	      DeleteObject(bm);
+	    }
+	  else
+	    ExtTextOutW (hdc, x, y, opt, &rc2, str, i, dx);
+	  x += *dx * i;
+	  str += i;
+	  rc2.left = rc2.right;
+	}
+      f = !f;
+    }
 }
