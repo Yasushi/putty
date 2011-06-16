@@ -771,7 +771,6 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
 	for (j = 0; j < lenof(popup_menus); j++) {
 	    m = popup_menus[j].menu;
 
-	    InsertMenu(m, SC_RESTORE, MF_SEPARATOR, 0, 0);
 	    InsertMenu(m, SC_RESTORE, MF_ENABLED, IDM_SHOWLOG, "&Event Log");
 	    InsertMenu(m, SC_RESTORE, MF_SEPARATOR, 0, 0);
 	    InsertMenu(m, SC_RESTORE, MF_ENABLED, IDM_NEWSESS, "Ne&w Session...");
@@ -788,9 +787,10 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
 		       MF_GRAYED : MF_ENABLED, IDM_FULLSCREEN, "&Full Screen");
 	    InsertMenu(m, SC_RESTORE, MF_SEPARATOR, 0, 0);
 	    if (has_help())
-		InsertMenu(m, SC_RESTORE, MF_ENABLED, IDM_HELP, "&Help");
+         InsertMenu(m, SC_RESTORE, MF_ENABLED, IDM_HELP, "&Help");
 	    str = dupprintf("&About %s", appname);
 	    InsertMenu(m, SC_RESTORE, MF_ENABLED, IDM_ABOUT, str);
+	    InsertMenu(m, SC_RESTORE, MF_SEPARATOR, 0, 0);       
 	    sfree(str);
 	}
     }
