@@ -35,7 +35,6 @@
 		237CC16A14165B2300D34A6B /* rlogin.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC15D14165B2300D34A6B /* rlogin.c */; };
 		237CC16B14165B2300D34A6B /* sercfg.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC15E14165B2300D34A6B /* sercfg.c */; };
 		237CC16C14165B2300D34A6B /* settings.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC15F14165B2300D34A6B /* settings.c */; };
-		237CC16D14165B2300D34A6B /* sftp.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC16014165B2300D34A6B /* sftp.c */; };
 		237CC16E14165B2300D34A6B /* ssh.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC16214165B2300D34A6B /* ssh.c */; };
 		237CC16F14165B2300D34A6B /* sshaes.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC16414165B2300D34A6B /* sshaes.c */; };
 		237CC17014165B2300D34A6B /* ssharcf.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC16514165B2300D34A6B /* ssharcf.c */; };
@@ -97,6 +96,7 @@
 		237CC20F1416649C00D34A6B /* utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC2021416649C00D34A6B /* utf8.c */; };
 		237CC2101416649C00D34A6B /* xenc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC2031416649C00D34A6B /* xenc.c */; };
 		237CC212141664F400D34A6B /* sbcsdat.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC211141664F400D34A6B /* sbcsdat.c */; };
+		237CC2141416C44F00D34A6B /* be_all.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC2131416C44F00D34A6B /* be_all.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -145,8 +145,6 @@
 		237CC15D14165B2300D34A6B /* rlogin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rlogin.c; path = ../rlogin.c; sourceTree = "<group>"; };
 		237CC15E14165B2300D34A6B /* sercfg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sercfg.c; path = ../sercfg.c; sourceTree = "<group>"; };
 		237CC15F14165B2300D34A6B /* settings.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = settings.c; path = ../settings.c; sourceTree = "<group>"; };
-		237CC16014165B2300D34A6B /* sftp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sftp.c; path = ../sftp.c; sourceTree = "<group>"; };
-		237CC16114165B2300D34A6B /* sftp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sftp.h; path = ../sftp.h; sourceTree = "<group>"; };
 		237CC16214165B2300D34A6B /* ssh.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ssh.c; path = ../ssh.c; sourceTree = "<group>"; };
 		237CC16314165B2300D34A6B /* ssh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ssh.h; path = ../ssh.h; sourceTree = "<group>"; };
 		237CC16414165B2300D34A6B /* sshaes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshaes.c; path = ../sshaes.c; sourceTree = "<group>"; };
@@ -218,6 +216,7 @@
 		237CC2021416649C00D34A6B /* utf8.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utf8.c; sourceTree = "<group>"; };
 		237CC2031416649C00D34A6B /* xenc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xenc.c; sourceTree = "<group>"; };
 		237CC211141664F400D34A6B /* sbcsdat.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sbcsdat.c; sourceTree = "<group>"; };
+		237CC2131416C44F00D34A6B /* be_all.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = be_all.c; path = ../be_all.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -291,6 +290,7 @@
 		237CC11E14165AD500D34A6B /* putty */ = {
 			isa = PBXGroup;
 			children = (
+				237CC2131416C44F00D34A6B /* be_all.c */,
 				237CC17514165B5000D34A6B /* sshdes.c */,
 				237CC17614165B5000D34A6B /* sshdh.c */,
 				237CC17714165B5000D34A6B /* sshdss.c */,
@@ -325,8 +325,6 @@
 				237CC15D14165B2300D34A6B /* rlogin.c */,
 				237CC15E14165B2300D34A6B /* sercfg.c */,
 				237CC15F14165B2300D34A6B /* settings.c */,
-				237CC16014165B2300D34A6B /* sftp.c */,
-				237CC16114165B2300D34A6B /* sftp.h */,
 				237CC16214165B2300D34A6B /* ssh.c */,
 				237CC16314165B2300D34A6B /* ssh.h */,
 				237CC16414165B2300D34A6B /* sshaes.c */,
@@ -502,7 +500,6 @@
 				237CC16A14165B2300D34A6B /* rlogin.c in Sources */,
 				237CC16B14165B2300D34A6B /* sercfg.c in Sources */,
 				237CC16C14165B2300D34A6B /* settings.c in Sources */,
-				237CC16D14165B2300D34A6B /* sftp.c in Sources */,
 				237CC16E14165B2300D34A6B /* ssh.c in Sources */,
 				237CC16F14165B2300D34A6B /* sshaes.c in Sources */,
 				237CC17014165B2300D34A6B /* ssharcf.c in Sources */,
@@ -564,6 +561,7 @@
 				237CC20F1416649C00D34A6B /* utf8.c in Sources */,
 				237CC2101416649C00D34A6B /* xenc.c in Sources */,
 				237CC212141664F400D34A6B /* sbcsdat.c in Sources */,
+				237CC2141416C44F00D34A6B /* be_all.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
