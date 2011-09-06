@@ -1564,7 +1564,7 @@ void dlg_editbox_set(union control *ctrl, void *dv, char const *text)
     }
 }
 
-void dlg_editbox_get(union control *ctrl, void *dv, char *buffer, int length)
+char* dlg_editbox_get(union control *ctrl, void *dv)
 {
     struct fe_dlg *d = (struct fe_dlg *)dv;
     struct fe_ctrl *c = fe_ctrl_byctrl(d, ctrl);
@@ -1580,7 +1580,7 @@ void dlg_editbox_get(union control *ctrl, void *dv, char *buffer, int length)
 	str = @"";
 
     /* The length parameter to this method doesn't include a trailing NUL */
-    [str getCString:buffer maxLength:length-1];
+    return strdup([str UTF8String]);
 }
 
 void dlg_listbox_clear(union control *ctrl, void *dv)
