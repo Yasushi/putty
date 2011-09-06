@@ -139,7 +139,7 @@
 
     [self setIgnoresMouseEvents:NO];
 
-    dv = fe_dlg_init(&cfg, self, self, @selector(configBoxFinished:));
+    dv = fe_dlg_init(cfg, self, self, @selector(configBoxFinished:));
 
     scrollview = [[NSScrollView alloc] initWithFrame:NSMakeRect(20,20,10,10)];
     treeview = [[NSOutlineView alloc] initWithFrame:[scrollview frame]];

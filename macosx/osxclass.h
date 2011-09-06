@@ -96,7 +96,7 @@ struct alert_queue {
 #define HSPACING 12		       /* needed in osxdlg.m and osxctrls.m */
 #define VSPACING 8
 
-void *fe_dlg_init(void *data, NSWindow *window, NSObject *target, SEL action);
+void *fe_dlg_init(Conf *data, NSWindow *window, NSObject *target, SEL action);
 void fe_dlg_free(void *dv);
 void create_ctrls(void *dv, NSView *parent, struct controlset *s,
 		  int *minw, int *minh);

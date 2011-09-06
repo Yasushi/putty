@@ -221,7 +221,7 @@ struct fe_dlg {
     tree234 *byctrl;
     tree234 *bywidget;
     tree234 *boxes;
-    void *data;			       /* passed to portable side */
+    Conf *data;			       /* passed to portable side */
     Receiver *rec;
 };
 
@@ -394,7 +394,7 @@ static struct fe_ctrl *find_widget(struct fe_dlg *d, id widget)
     return b ? b->c : NULL;
 }
 
-void *fe_dlg_init(void *data, NSWindow *window, NSObject *target, SEL action)
+void *fe_dlg_init(Conf *data, NSWindow *window, NSObject *target, SEL action)
 {
     struct fe_dlg *d;
 
