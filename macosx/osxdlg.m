@@ -283,7 +283,7 @@
     if (ret) {
 	[controller performSelectorOnMainThread:
 	 @selector(newSessionWithConfig:)
-	 withObject:[NSValue value:cfg withObjCType:@encode(Conf*)]
+	 withObject:[NSValue value:&cfg withObjCType:@encode(Conf*)]
 	 waitUntilDone:NO];
     }
     [self close];
