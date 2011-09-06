@@ -698,8 +698,11 @@ void create_ctrls(void *dv, NSView *parent, struct controlset *s,
 		[tf setSelectable:NO];
 		[tf setBordered:NO];
 		[tf setDrawsBackground:NO];
-		[tf setStringValue:[NSString
-				    stringWithCString:ctrl->generic.label]];
+		if(ctrl->generic.label)
+			[tf setStringValue:[NSString stringWithCString:ctrl->generic.label]];
+		else
+			// WARNING: is this valid?
+			[tf setStringValue:@"?unnamed?"];			
 		[tf sizeToFit];
 		rect = [tf frame];
 		[parent addSubview:tf];
