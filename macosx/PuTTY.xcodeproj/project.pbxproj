@@ -15,7 +15,6 @@
 		237CC11B14165A5C00D34A6B /* osxsel.m in Sources */ = {isa = PBXBuildFile; fileRef = 237CC11414165A5C00D34A6B /* osxsel.m */; };
 		237CC11C14165A5C00D34A6B /* osxwin.m in Sources */ = {isa = PBXBuildFile; fileRef = 237CC11514165A5C00D34A6B /* osxwin.m */; };
 		237CC11D14165A5C00D34A6B /* putty.icns in Resources */ = {isa = PBXBuildFile; fileRef = 237CC11614165A5C00D34A6B /* putty.icns */; };
-		237CC13614165AFA00D34A6B /* cmdgen.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC11F14165AFA00D34A6B /* cmdgen.c */; };
 		237CC13714165AFA00D34A6B /* cmdline.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12014165AFA00D34A6B /* cmdline.c */; };
 		237CC13814165AFA00D34A6B /* conf.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12114165AFA00D34A6B /* conf.c */; };
 		237CC13914165AFA00D34A6B /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12214165AFA00D34A6B /* config.c */; };
@@ -28,17 +27,10 @@
 		237CC14014165AFA00D34A6B /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12C14165AFA00D34A6B /* logging.c */; };
 		237CC14114165AFA00D34A6B /* minibidi.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12D14165AFA00D34A6B /* minibidi.c */; };
 		237CC14214165AFA00D34A6B /* misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12E14165AFA00D34A6B /* misc.c */; };
-		237CC14314165AFA00D34A6B /* nocproxy.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC13114165AFA00D34A6B /* nocproxy.c */; };
-		237CC14414165AFA00D34A6B /* nogss.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC13214165AFA00D34A6B /* nogss.c */; };
-		237CC14514165AFA00D34A6B /* noprint.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC13314165AFA00D34A6B /* noprint.c */; };
-		237CC14614165AFA00D34A6B /* notiming.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC13414165AFA00D34A6B /* notiming.c */; };
 		237CC14714165AFA00D34A6B /* pgssapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC13514165AFA00D34A6B /* pgssapi.c */; };
 		237CC15514165B0D00D34A6B /* pinger.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC14914165B0D00D34A6B /* pinger.c */; };
 		237CC15614165B0D00D34A6B /* portfwd.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC14A14165B0D00D34A6B /* portfwd.c */; };
-		237CC15714165B0D00D34A6B /* pproxy.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC14B14165B0D00D34A6B /* pproxy.c */; };
 		237CC15814165B0D00D34A6B /* proxy.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC14C14165B0D00D34A6B /* proxy.c */; };
-		237CC15914165B0D00D34A6B /* pscp.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC14E14165B0D00D34A6B /* pscp.c */; };
-		237CC15A14165B0D00D34A6B /* psftp.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC14F14165B0D00D34A6B /* psftp.c */; };
 		237CC15B14165B0D00D34A6B /* raw.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC15414165B0D00D34A6B /* raw.c */; };
 		237CC16A14165B2300D34A6B /* rlogin.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC15D14165B2300D34A6B /* rlogin.c */; };
 		237CC16B14165B2300D34A6B /* sercfg.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC15E14165B2300D34A6B /* sercfg.c */; };
@@ -79,27 +71,21 @@
 		237CC1DA14165BEE00D34A6B /* ux_x11.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1BA14165BEE00D34A6B /* ux_x11.c */; };
 		237CC1DB14165BEE00D34A6B /* uxagentc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1BB14165BEE00D34A6B /* uxagentc.c */; };
 		237CC1DC14165BEE00D34A6B /* uxcfg.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1BC14165BEE00D34A6B /* uxcfg.c */; };
-		237CC1DD14165BEE00D34A6B /* uxcons.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1BD14165BEE00D34A6B /* uxcons.c */; };
 		237CC1DE14165BEE00D34A6B /* uxgen.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1BE14165BEE00D34A6B /* uxgen.c */; };
 		237CC1DF14165BEE00D34A6B /* uxgss.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1BF14165BEE00D34A6B /* uxgss.c */; };
 		237CC1E014165BEE00D34A6B /* uxmisc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C014165BEE00D34A6B /* uxmisc.c */; };
 		237CC1E114165BEE00D34A6B /* uxnet.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C114165BEE00D34A6B /* uxnet.c */; };
 		237CC1E214165BEE00D34A6B /* uxnoise.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C214165BEE00D34A6B /* uxnoise.c */; };
-		237CC1E314165BEE00D34A6B /* uxplink.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C314165BEE00D34A6B /* uxplink.c */; };
 		237CC1E414165BEE00D34A6B /* uxprint.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C414165BEE00D34A6B /* uxprint.c */; };
 		237CC1E514165BEE00D34A6B /* uxproxy.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C514165BEE00D34A6B /* uxproxy.c */; };
-		237CC1E614165BEE00D34A6B /* uxpterm.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C614165BEE00D34A6B /* uxpterm.c */; };
 		237CC1E714165BEE00D34A6B /* uxpty.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C714165BEE00D34A6B /* uxpty.c */; };
 		237CC1E914165BEE00D34A6B /* uxsel.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C914165BEE00D34A6B /* uxsel.c */; };
 		237CC1EA14165BEE00D34A6B /* uxser.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1CA14165BEE00D34A6B /* uxser.c */; };
-		237CC1EB14165BEE00D34A6B /* uxsftp.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1CB14165BEE00D34A6B /* uxsftp.c */; };
 		237CC1EC14165BEE00D34A6B /* uxsignal.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1CC14165BEE00D34A6B /* uxsignal.c */; };
 		237CC1ED14165BEE00D34A6B /* uxstore.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1CD14165BEE00D34A6B /* uxstore.c */; };
 		237CC1EE14165BEE00D34A6B /* uxucs.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1CE14165BEE00D34A6B /* uxucs.c */; };
 		237CC1EF14165BEE00D34A6B /* xkeysym.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1CF14165BEE00D34A6B /* xkeysym.c */; };
 		237CC1F014165BEE00D34A6B /* xpmptcfg.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1D014165BEE00D34A6B /* xpmptcfg.c */; };
-		237CC1F114165BEE00D34A6B /* xpmpterm.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1D114165BEE00D34A6B /* xpmpterm.c */; };
-		237CC1F214165BEE00D34A6B /* xpmpucfg.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1D214165BEE00D34A6B /* xpmpucfg.c */; };
 		237CC1F314165BEE00D34A6B /* xpmputty.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1D314165BEE00D34A6B /* xpmputty.c */; };
 		237CC2051416649C00D34A6B /* fromucs.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1F71416649C00D34A6B /* fromucs.c */; };
 		237CC2061416649C00D34A6B /* localenc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1F91416649C00D34A6B /* localenc.c */; };
@@ -128,7 +114,6 @@
 		237CC11414165A5C00D34A6B /* osxsel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = osxsel.m; sourceTree = SOURCE_ROOT; };
 		237CC11514165A5C00D34A6B /* osxwin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = osxwin.m; sourceTree = SOURCE_ROOT; };
 		237CC11614165A5C00D34A6B /* putty.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = putty.icns; sourceTree = SOURCE_ROOT; };
-		237CC11F14165AFA00D34A6B /* cmdgen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmdgen.c; path = ../cmdgen.c; sourceTree = "<group>"; };
 		237CC12014165AFA00D34A6B /* cmdline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmdline.c; path = ../cmdline.c; sourceTree = "<group>"; };
 		237CC12114165AFA00D34A6B /* conf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = conf.c; path = ../conf.c; sourceTree = "<group>"; };
 		237CC12214165AFA00D34A6B /* config.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = config.c; path = ../config.c; sourceTree = "<group>"; };
@@ -146,20 +131,12 @@
 		237CC12E14165AFA00D34A6B /* misc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = misc.c; path = ../misc.c; sourceTree = "<group>"; };
 		237CC12F14165AFA00D34A6B /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = misc.h; path = ../misc.h; sourceTree = "<group>"; };
 		237CC13014165AFA00D34A6B /* network.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network.h; path = ../network.h; sourceTree = "<group>"; };
-		237CC13114165AFA00D34A6B /* nocproxy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = nocproxy.c; path = ../nocproxy.c; sourceTree = "<group>"; };
-		237CC13214165AFA00D34A6B /* nogss.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = nogss.c; path = ../nogss.c; sourceTree = "<group>"; };
-		237CC13314165AFA00D34A6B /* noprint.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = noprint.c; path = ../noprint.c; sourceTree = "<group>"; };
-		237CC13414165AFA00D34A6B /* notiming.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = notiming.c; path = ../notiming.c; sourceTree = "<group>"; };
 		237CC13514165AFA00D34A6B /* pgssapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pgssapi.c; path = ../pgssapi.c; sourceTree = "<group>"; };
 		237CC14814165B0D00D34A6B /* pgssapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pgssapi.h; path = ../pgssapi.h; sourceTree = "<group>"; };
 		237CC14914165B0D00D34A6B /* pinger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pinger.c; path = ../pinger.c; sourceTree = "<group>"; };
 		237CC14A14165B0D00D34A6B /* portfwd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = portfwd.c; path = ../portfwd.c; sourceTree = "<group>"; };
-		237CC14B14165B0D00D34A6B /* pproxy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pproxy.c; path = ../pproxy.c; sourceTree = "<group>"; };
 		237CC14C14165B0D00D34A6B /* proxy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = proxy.c; path = ../proxy.c; sourceTree = "<group>"; };
 		237CC14D14165B0D00D34A6B /* proxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proxy.h; path = ../proxy.h; sourceTree = "<group>"; };
-		237CC14E14165B0D00D34A6B /* pscp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pscp.c; path = ../pscp.c; sourceTree = "<group>"; };
-		237CC14F14165B0D00D34A6B /* psftp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = psftp.c; path = ../psftp.c; sourceTree = "<group>"; };
-		237CC15014165B0D00D34A6B /* psftp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = psftp.h; path = ../psftp.h; sourceTree = "<group>"; };
 		237CC15114165B0D00D34A6B /* putty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = putty.h; path = ../putty.h; sourceTree = "<group>"; };
 		237CC15214165B0D00D34A6B /* puttymem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = puttymem.h; path = ../puttymem.h; sourceTree = "<group>"; };
 		237CC15314165B0D00D34A6B /* puttyps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = puttyps.h; path = ../puttyps.h; sourceTree = "<group>"; };
@@ -212,27 +189,21 @@
 		237CC1BA14165BEE00D34A6B /* ux_x11.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ux_x11.c; sourceTree = "<group>"; };
 		237CC1BB14165BEE00D34A6B /* uxagentc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxagentc.c; sourceTree = "<group>"; };
 		237CC1BC14165BEE00D34A6B /* uxcfg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxcfg.c; sourceTree = "<group>"; };
-		237CC1BD14165BEE00D34A6B /* uxcons.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxcons.c; sourceTree = "<group>"; };
 		237CC1BE14165BEE00D34A6B /* uxgen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxgen.c; sourceTree = "<group>"; };
 		237CC1BF14165BEE00D34A6B /* uxgss.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxgss.c; sourceTree = "<group>"; };
 		237CC1C014165BEE00D34A6B /* uxmisc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxmisc.c; sourceTree = "<group>"; };
 		237CC1C114165BEE00D34A6B /* uxnet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxnet.c; sourceTree = "<group>"; };
 		237CC1C214165BEE00D34A6B /* uxnoise.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxnoise.c; sourceTree = "<group>"; };
-		237CC1C314165BEE00D34A6B /* uxplink.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxplink.c; sourceTree = "<group>"; };
 		237CC1C414165BEE00D34A6B /* uxprint.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxprint.c; sourceTree = "<group>"; };
 		237CC1C514165BEE00D34A6B /* uxproxy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxproxy.c; sourceTree = "<group>"; };
-		237CC1C614165BEE00D34A6B /* uxpterm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxpterm.c; sourceTree = "<group>"; };
 		237CC1C714165BEE00D34A6B /* uxpty.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxpty.c; sourceTree = "<group>"; };
 		237CC1C914165BEE00D34A6B /* uxsel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxsel.c; sourceTree = "<group>"; };
 		237CC1CA14165BEE00D34A6B /* uxser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxser.c; sourceTree = "<group>"; };
-		237CC1CB14165BEE00D34A6B /* uxsftp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxsftp.c; sourceTree = "<group>"; };
 		237CC1CC14165BEE00D34A6B /* uxsignal.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxsignal.c; sourceTree = "<group>"; };
 		237CC1CD14165BEE00D34A6B /* uxstore.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxstore.c; sourceTree = "<group>"; };
 		237CC1CE14165BEE00D34A6B /* uxucs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxucs.c; sourceTree = "<group>"; };
 		237CC1CF14165BEE00D34A6B /* xkeysym.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xkeysym.c; sourceTree = "<group>"; };
 		237CC1D014165BEE00D34A6B /* xpmptcfg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xpmptcfg.c; sourceTree = "<group>"; };
-		237CC1D114165BEE00D34A6B /* xpmpterm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xpmpterm.c; sourceTree = "<group>"; };
-		237CC1D214165BEE00D34A6B /* xpmpucfg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xpmpucfg.c; sourceTree = "<group>"; };
 		237CC1D314165BEE00D34A6B /* xpmputty.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xpmputty.c; sourceTree = "<group>"; };
 		237CC1F51416649C00D34A6B /* charset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = charset.h; sourceTree = "<group>"; };
 		237CC1F61416649C00D34A6B /* enum.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = enum.c; sourceTree = "<group>"; };
@@ -367,17 +338,12 @@
 				237CC14814165B0D00D34A6B /* pgssapi.h */,
 				237CC14914165B0D00D34A6B /* pinger.c */,
 				237CC14A14165B0D00D34A6B /* portfwd.c */,
-				237CC14B14165B0D00D34A6B /* pproxy.c */,
 				237CC14C14165B0D00D34A6B /* proxy.c */,
 				237CC14D14165B0D00D34A6B /* proxy.h */,
-				237CC14E14165B0D00D34A6B /* pscp.c */,
-				237CC14F14165B0D00D34A6B /* psftp.c */,
-				237CC15014165B0D00D34A6B /* psftp.h */,
 				237CC15114165B0D00D34A6B /* putty.h */,
 				237CC15214165B0D00D34A6B /* puttymem.h */,
 				237CC15314165B0D00D34A6B /* puttyps.h */,
 				237CC15414165B0D00D34A6B /* raw.c */,
-				237CC11F14165AFA00D34A6B /* cmdgen.c */,
 				237CC12014165AFA00D34A6B /* cmdline.c */,
 				237CC12114165AFA00D34A6B /* conf.c */,
 				237CC12214165AFA00D34A6B /* config.c */,
@@ -395,10 +361,6 @@
 				237CC12E14165AFA00D34A6B /* misc.c */,
 				237CC12F14165AFA00D34A6B /* misc.h */,
 				237CC13014165AFA00D34A6B /* network.h */,
-				237CC13114165AFA00D34A6B /* nocproxy.c */,
-				237CC13214165AFA00D34A6B /* nogss.c */,
-				237CC13314165AFA00D34A6B /* noprint.c */,
-				237CC13414165AFA00D34A6B /* notiming.c */,
 				237CC13514165AFA00D34A6B /* pgssapi.c */,
 			);
 			name = putty;
@@ -411,27 +373,21 @@
 				237CC1BA14165BEE00D34A6B /* ux_x11.c */,
 				237CC1BB14165BEE00D34A6B /* uxagentc.c */,
 				237CC1BC14165BEE00D34A6B /* uxcfg.c */,
-				237CC1BD14165BEE00D34A6B /* uxcons.c */,
 				237CC1BE14165BEE00D34A6B /* uxgen.c */,
 				237CC1BF14165BEE00D34A6B /* uxgss.c */,
 				237CC1C014165BEE00D34A6B /* uxmisc.c */,
 				237CC1C114165BEE00D34A6B /* uxnet.c */,
 				237CC1C214165BEE00D34A6B /* uxnoise.c */,
-				237CC1C314165BEE00D34A6B /* uxplink.c */,
 				237CC1C414165BEE00D34A6B /* uxprint.c */,
 				237CC1C514165BEE00D34A6B /* uxproxy.c */,
-				237CC1C614165BEE00D34A6B /* uxpterm.c */,
 				237CC1C714165BEE00D34A6B /* uxpty.c */,
 				237CC1C914165BEE00D34A6B /* uxsel.c */,
 				237CC1CA14165BEE00D34A6B /* uxser.c */,
-				237CC1CB14165BEE00D34A6B /* uxsftp.c */,
 				237CC1CC14165BEE00D34A6B /* uxsignal.c */,
 				237CC1CD14165BEE00D34A6B /* uxstore.c */,
 				237CC1CE14165BEE00D34A6B /* uxucs.c */,
 				237CC1CF14165BEE00D34A6B /* xkeysym.c */,
 				237CC1D014165BEE00D34A6B /* xpmptcfg.c */,
-				237CC1D114165BEE00D34A6B /* xpmpterm.c */,
-				237CC1D214165BEE00D34A6B /* xpmpucfg.c */,
 				237CC1D314165BEE00D34A6B /* xpmputty.c */,
 			);
 			name = "putty-unix";
@@ -526,7 +482,6 @@
 				237CC11A14165A5C00D34A6B /* osxmain.m in Sources */,
 				237CC11B14165A5C00D34A6B /* osxsel.m in Sources */,
 				237CC11C14165A5C00D34A6B /* osxwin.m in Sources */,
-				237CC13614165AFA00D34A6B /* cmdgen.c in Sources */,
 				237CC13714165AFA00D34A6B /* cmdline.c in Sources */,
 				237CC13814165AFA00D34A6B /* conf.c in Sources */,
 				237CC13914165AFA00D34A6B /* config.c in Sources */,
@@ -539,17 +494,10 @@
 				237CC14014165AFA00D34A6B /* logging.c in Sources */,
 				237CC14114165AFA00D34A6B /* minibidi.c in Sources */,
 				237CC14214165AFA00D34A6B /* misc.c in Sources */,
-				237CC14314165AFA00D34A6B /* nocproxy.c in Sources */,
-				237CC14414165AFA00D34A6B /* nogss.c in Sources */,
-				237CC14514165AFA00D34A6B /* noprint.c in Sources */,
-				237CC14614165AFA00D34A6B /* notiming.c in Sources */,
 				237CC14714165AFA00D34A6B /* pgssapi.c in Sources */,
 				237CC15514165B0D00D34A6B /* pinger.c in Sources */,
 				237CC15614165B0D00D34A6B /* portfwd.c in Sources */,
-				237CC15714165B0D00D34A6B /* pproxy.c in Sources */,
 				237CC15814165B0D00D34A6B /* proxy.c in Sources */,
-				237CC15914165B0D00D34A6B /* pscp.c in Sources */,
-				237CC15A14165B0D00D34A6B /* psftp.c in Sources */,
 				237CC15B14165B0D00D34A6B /* raw.c in Sources */,
 				237CC16A14165B2300D34A6B /* rlogin.c in Sources */,
 				237CC16B14165B2300D34A6B /* sercfg.c in Sources */,
@@ -590,27 +538,21 @@
 				237CC1DA14165BEE00D34A6B /* ux_x11.c in Sources */,
 				237CC1DB14165BEE00D34A6B /* uxagentc.c in Sources */,
 				237CC1DC14165BEE00D34A6B /* uxcfg.c in Sources */,
-				237CC1DD14165BEE00D34A6B /* uxcons.c in Sources */,
 				237CC1DE14165BEE00D34A6B /* uxgen.c in Sources */,
 				237CC1DF14165BEE00D34A6B /* uxgss.c in Sources */,
 				237CC1E014165BEE00D34A6B /* uxmisc.c in Sources */,
 				237CC1E114165BEE00D34A6B /* uxnet.c in Sources */,
 				237CC1E214165BEE00D34A6B /* uxnoise.c in Sources */,
-				237CC1E314165BEE00D34A6B /* uxplink.c in Sources */,
 				237CC1E414165BEE00D34A6B /* uxprint.c in Sources */,
 				237CC1E514165BEE00D34A6B /* uxproxy.c in Sources */,
-				237CC1E614165BEE00D34A6B /* uxpterm.c in Sources */,
 				237CC1E714165BEE00D34A6B /* uxpty.c in Sources */,
 				237CC1E914165BEE00D34A6B /* uxsel.c in Sources */,
 				237CC1EA14165BEE00D34A6B /* uxser.c in Sources */,
-				237CC1EB14165BEE00D34A6B /* uxsftp.c in Sources */,
 				237CC1EC14165BEE00D34A6B /* uxsignal.c in Sources */,
 				237CC1ED14165BEE00D34A6B /* uxstore.c in Sources */,
 				237CC1EE14165BEE00D34A6B /* uxucs.c in Sources */,
 				237CC1EF14165BEE00D34A6B /* xkeysym.c in Sources */,
 				237CC1F014165BEE00D34A6B /* xpmptcfg.c in Sources */,
-				237CC1F114165BEE00D34A6B /* xpmpterm.c in Sources */,
-				237CC1F214165BEE00D34A6B /* xpmpucfg.c in Sources */,
 				237CC1F314165BEE00D34A6B /* xpmputty.c in Sources */,
 				237CC2051416649C00D34A6B /* fromucs.c in Sources */,
 				237CC2061416649C00D34A6B /* localenc.c in Sources */,
