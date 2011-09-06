@@ -101,7 +101,6 @@
 		237CC1F114165BEE00D34A6B /* xpmpterm.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1D114165BEE00D34A6B /* xpmpterm.c */; };
 		237CC1F214165BEE00D34A6B /* xpmpucfg.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1D214165BEE00D34A6B /* xpmpucfg.c */; };
 		237CC1F314165BEE00D34A6B /* xpmputty.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1D314165BEE00D34A6B /* xpmputty.c */; };
-		237CC2041416649C00D34A6B /* enum.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1F61416649C00D34A6B /* enum.c */; };
 		237CC2051416649C00D34A6B /* fromucs.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1F71416649C00D34A6B /* fromucs.c */; };
 		237CC2061416649C00D34A6B /* localenc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1F91416649C00D34A6B /* localenc.c */; };
 		237CC2071416649C00D34A6B /* macenc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1FA1416649C00D34A6B /* macenc.c */; };
@@ -613,7 +612,6 @@
 				237CC1F114165BEE00D34A6B /* xpmpterm.c in Sources */,
 				237CC1F214165BEE00D34A6B /* xpmpucfg.c in Sources */,
 				237CC1F314165BEE00D34A6B /* xpmputty.c in Sources */,
-				237CC2041416649C00D34A6B /* enum.c in Sources */,
 				237CC2051416649C00D34A6B /* fromucs.c in Sources */,
 				237CC2061416649C00D34A6B /* localenc.c in Sources */,
 				237CC2071416649C00D34A6B /* macenc.c in Sources */,
