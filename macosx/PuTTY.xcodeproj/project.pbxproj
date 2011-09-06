@@ -57,7 +57,6 @@
 		237CC19714165B5000D34A6B /* sshdssg.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC17814165B5000D34A6B /* sshdssg.c */; };
 		237CC19814165B5000D34A6B /* sshgssc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC17A14165B5000D34A6B /* sshgssc.c */; };
 		237CC19914165B5000D34A6B /* sshmd5.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC17C14165B5000D34A6B /* sshmd5.c */; };
-		237CC19A14165B5000D34A6B /* sshnogss.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC17D14165B5000D34A6B /* sshnogss.c */; };
 		237CC19B14165B5000D34A6B /* sshprime.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC17E14165B5000D34A6B /* sshprime.c */; };
 		237CC19C14165B5000D34A6B /* sshpubk.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC17F14165B5000D34A6B /* sshpubk.c */; };
 		237CC19D14165B5000D34A6B /* sshrand.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC18014165B5000D34A6B /* sshrand.c */; };
@@ -91,7 +90,6 @@
 		237CC1E514165BEE00D34A6B /* uxproxy.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C514165BEE00D34A6B /* uxproxy.c */; };
 		237CC1E614165BEE00D34A6B /* uxpterm.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C614165BEE00D34A6B /* uxpterm.c */; };
 		237CC1E714165BEE00D34A6B /* uxpty.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C714165BEE00D34A6B /* uxpty.c */; };
-		237CC1E814165BEE00D34A6B /* uxputty.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C814165BEE00D34A6B /* uxputty.c */; };
 		237CC1E914165BEE00D34A6B /* uxsel.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C914165BEE00D34A6B /* uxsel.c */; };
 		237CC1EA14165BEE00D34A6B /* uxser.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1CA14165BEE00D34A6B /* uxser.c */; };
 		237CC1EB14165BEE00D34A6B /* uxsftp.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1CB14165BEE00D34A6B /* uxsftp.c */; };
@@ -189,7 +187,6 @@
 		237CC17A14165B5000D34A6B /* sshgssc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshgssc.c; path = ../sshgssc.c; sourceTree = "<group>"; };
 		237CC17B14165B5000D34A6B /* sshgssc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sshgssc.h; path = ../sshgssc.h; sourceTree = "<group>"; };
 		237CC17C14165B5000D34A6B /* sshmd5.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshmd5.c; path = ../sshmd5.c; sourceTree = "<group>"; };
-		237CC17D14165B5000D34A6B /* sshnogss.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshnogss.c; path = ../sshnogss.c; sourceTree = "<group>"; };
 		237CC17E14165B5000D34A6B /* sshprime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshprime.c; path = ../sshprime.c; sourceTree = "<group>"; };
 		237CC17F14165B5000D34A6B /* sshpubk.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshpubk.c; path = ../sshpubk.c; sourceTree = "<group>"; };
 		237CC18014165B5000D34A6B /* sshrand.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshrand.c; path = ../sshrand.c; sourceTree = "<group>"; };
@@ -227,7 +224,6 @@
 		237CC1C514165BEE00D34A6B /* uxproxy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxproxy.c; sourceTree = "<group>"; };
 		237CC1C614165BEE00D34A6B /* uxpterm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxpterm.c; sourceTree = "<group>"; };
 		237CC1C714165BEE00D34A6B /* uxpty.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxpty.c; sourceTree = "<group>"; };
-		237CC1C814165BEE00D34A6B /* uxputty.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxputty.c; sourceTree = "<group>"; };
 		237CC1C914165BEE00D34A6B /* uxsel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxsel.c; sourceTree = "<group>"; };
 		237CC1CA14165BEE00D34A6B /* uxser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxser.c; sourceTree = "<group>"; };
 		237CC1CB14165BEE00D34A6B /* uxsftp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxsftp.c; sourceTree = "<group>"; };
@@ -333,7 +329,6 @@
 				237CC17A14165B5000D34A6B /* sshgssc.c */,
 				237CC17B14165B5000D34A6B /* sshgssc.h */,
 				237CC17C14165B5000D34A6B /* sshmd5.c */,
-				237CC17D14165B5000D34A6B /* sshnogss.c */,
 				237CC17E14165B5000D34A6B /* sshprime.c */,
 				237CC17F14165B5000D34A6B /* sshpubk.c */,
 				237CC18014165B5000D34A6B /* sshrand.c */,
@@ -428,7 +423,6 @@
 				237CC1C514165BEE00D34A6B /* uxproxy.c */,
 				237CC1C614165BEE00D34A6B /* uxpterm.c */,
 				237CC1C714165BEE00D34A6B /* uxpty.c */,
-				237CC1C814165BEE00D34A6B /* uxputty.c */,
 				237CC1C914165BEE00D34A6B /* uxsel.c */,
 				237CC1CA14165BEE00D34A6B /* uxser.c */,
 				237CC1CB14165BEE00D34A6B /* uxsftp.c */,
@@ -575,7 +569,6 @@
 				237CC19714165B5000D34A6B /* sshdssg.c in Sources */,
 				237CC19814165B5000D34A6B /* sshgssc.c in Sources */,
 				237CC19914165B5000D34A6B /* sshmd5.c in Sources */,
-				237CC19A14165B5000D34A6B /* sshnogss.c in Sources */,
 				237CC19B14165B5000D34A6B /* sshprime.c in Sources */,
 				237CC19C14165B5000D34A6B /* sshpubk.c in Sources */,
 				237CC19D14165B5000D34A6B /* sshrand.c in Sources */,
@@ -609,7 +602,6 @@
 				237CC1E514165BEE00D34A6B /* uxproxy.c in Sources */,
 				237CC1E614165BEE00D34A6B /* uxpterm.c in Sources */,
 				237CC1E714165BEE00D34A6B /* uxpty.c in Sources */,
-				237CC1E814165BEE00D34A6B /* uxputty.c in Sources */,
 				237CC1E914165BEE00D34A6B /* uxsel.c in Sources */,
 				237CC1EA14165BEE00D34A6B /* uxser.c in Sources */,
 				237CC1EB14165BEE00D34A6B /* uxsftp.c in Sources */,
