@@ -235,11 +235,11 @@ NSMenuItem *newitem(NSMenu *parent, char *title, char *key,
 - (void)newTerminal:(id)sender
 {
     id win;
-    Config cfg;
+    Conf* cfg = conf_new();
 
-    do_defaults(NULL, &cfg);
+    do_defaults(NULL, cfg);
 
-    cfg.protocol = -1;		       /* PROT_TERMINAL */
+	conf_set_int(cfg, CONF_protocol, default_protocol); /* Note: was -1 (PROT_TERMINAL) before */
 
     win = [[SessionWindow alloc] initWithConfig:cfg];
     [win makeKeyAndOrderFront:self];
@@ -248,9 +248,9 @@ NSMenuItem *newitem(NSMenu *parent, char *title, char *key,
 - (void)newSessionConfig:(id)sender
 {
     id win;
-    Config cfg;
+    Conf* cfg = conf_new();
 
-    do_defaults(NULL, &cfg);
+    do_defaults(NULL, cfg);
 
     win = [[ConfigWindow alloc] initWithConfig:cfg];
     [win makeKeyAndOrderFront:self];
@@ -258,12 +258,14 @@ NSMenuItem *newitem(NSMenu *parent, char *title, char *key,
 
 - (void)newSessionWithConfig:(id)vdata
 {
+	NSAssert(NO, "newSessionWithConfig not supported anymore");
+	
     id win;
-    Config cfg;
+    Conf* cfg = conf_new();
     NSData *data = (NSData *)vdata;
 
     assert([data length] == sizeof(cfg));
-    [data getBytes:&cfg];
+    [data getBytes:cfg];
 
     win = [[SessionWindow alloc] initWithConfig:cfg];
     [win makeKeyAndOrderFront:self];

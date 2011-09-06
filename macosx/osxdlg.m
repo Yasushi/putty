@@ -113,7 +113,7 @@
 @end
 
 @implementation ConfigWindow
-- (id)initWithConfig:(Config)aCfg
+- (id)initWithConfig:(Conf*)aCfg
 {
     NSScrollView *scrollview;
     NSTableColumn *col;
@@ -124,9 +124,9 @@
     int panelht = 0;
 
     ctrlbox = ctrl_new_box();
-    setup_config_box(ctrlbox, FALSE /*midsession*/, aCfg.protocol,
+    setup_config_box(ctrlbox, FALSE /*midsession*/, conf_get_int(aCfg, CONF_protocol),
 		     0 /* protcfginfo */);
-    unix_setup_config_box(ctrlbox, FALSE /*midsession*/, aCfg.protocol);
+    unix_setup_config_box(ctrlbox, FALSE /*midsession*/, conf_get_int(aCfg, CONF_protocol));
 
     cfg = aCfg;			       /* structure copy */
 
