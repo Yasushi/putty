@@ -18,7 +18,7 @@
 }
 - (void)newSessionConfig:(id)sender;
 - (void)newTerminal:(id)sender;
-- (void)newSessionWithConfig:(id)cfg;
+- (void)newSessionWithConfig:(NSValue*)cfg;
 - (void)setTimer:(long)next;
 @end
 extern AppController *controller;

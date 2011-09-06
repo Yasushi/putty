@@ -256,16 +256,10 @@ NSMenuItem *newitem(NSMenu *parent, char *title, char *key,
     [win makeKeyAndOrderFront:self];
 }
 
-- (void)newSessionWithConfig:(id)vdata
+- (void)newSessionWithConfig:(NSValue*)vdata
 {
-	NSAssert(NO, "newSessionWithConfig not supported anymore");
-	
     id win;
-    Conf* cfg = conf_new();
-    NSData *data = (NSData *)vdata;
-
-    assert([data length] == sizeof(cfg));
-    [data getBytes:cfg];
+    Conf* cfg = [vdata pointerValue];
 
     win = [[SessionWindow alloc] initWithConfig:cfg];
     [win makeKeyAndOrderFront:self];
