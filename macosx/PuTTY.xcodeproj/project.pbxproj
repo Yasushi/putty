@@ -1,0 +1,656 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		237CC0ED141659D100D34A6B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237CC0EC141659D100D34A6B /* Cocoa.framework */; };
+		237CC11714165A5C00D34A6B /* info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 237CC10E14165A5C00D34A6B /* info.plist */; };
+		237CC11814165A5C00D34A6B /* osxctrls.m in Sources */ = {isa = PBXBuildFile; fileRef = 237CC11114165A5C00D34A6B /* osxctrls.m */; };
+		237CC11914165A5C00D34A6B /* osxdlg.m in Sources */ = {isa = PBXBuildFile; fileRef = 237CC11214165A5C00D34A6B /* osxdlg.m */; };
+		237CC11A14165A5C00D34A6B /* osxmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 237CC11314165A5C00D34A6B /* osxmain.m */; };
+		237CC11B14165A5C00D34A6B /* osxsel.m in Sources */ = {isa = PBXBuildFile; fileRef = 237CC11414165A5C00D34A6B /* osxsel.m */; };
+		237CC11C14165A5C00D34A6B /* osxwin.m in Sources */ = {isa = PBXBuildFile; fileRef = 237CC11514165A5C00D34A6B /* osxwin.m */; };
+		237CC11D14165A5C00D34A6B /* putty.icns in Resources */ = {isa = PBXBuildFile; fileRef = 237CC11614165A5C00D34A6B /* putty.icns */; };
+		237CC13714165AFA00D34A6B /* cmdline.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12014165AFA00D34A6B /* cmdline.c */; };
+		237CC13814165AFA00D34A6B /* conf.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12114165AFA00D34A6B /* conf.c */; };
+		237CC13914165AFA00D34A6B /* config.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12214165AFA00D34A6B /* config.c */; };
+		237CC13A14165AFA00D34A6B /* cproxy.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12314165AFA00D34A6B /* cproxy.c */; };
+		237CC13B14165AFA00D34A6B /* dialog.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12414165AFA00D34A6B /* dialog.c */; };
+		237CC13C14165AFA00D34A6B /* import.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12614165AFA00D34A6B /* import.c */; };
+		237CC13D14165AFA00D34A6B /* int64.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12714165AFA00D34A6B /* int64.c */; };
+		237CC13E14165AFA00D34A6B /* ldisc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12914165AFA00D34A6B /* ldisc.c */; };
+		237CC13F14165AFA00D34A6B /* ldiscucs.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12B14165AFA00D34A6B /* ldiscucs.c */; };
+		237CC14014165AFA00D34A6B /* logging.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12C14165AFA00D34A6B /* logging.c */; };
+		237CC14114165AFA00D34A6B /* minibidi.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12D14165AFA00D34A6B /* minibidi.c */; };
+		237CC14214165AFA00D34A6B /* misc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC12E14165AFA00D34A6B /* misc.c */; };
+		237CC14714165AFA00D34A6B /* pgssapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC13514165AFA00D34A6B /* pgssapi.c */; };
+		237CC15514165B0D00D34A6B /* pinger.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC14914165B0D00D34A6B /* pinger.c */; };
+		237CC15614165B0D00D34A6B /* portfwd.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC14A14165B0D00D34A6B /* portfwd.c */; };
+		237CC15814165B0D00D34A6B /* proxy.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC14C14165B0D00D34A6B /* proxy.c */; };
+		237CC15B14165B0D00D34A6B /* raw.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC15414165B0D00D34A6B /* raw.c */; };
+		237CC16A14165B2300D34A6B /* rlogin.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC15D14165B2300D34A6B /* rlogin.c */; };
+		237CC16B14165B2300D34A6B /* sercfg.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC15E14165B2300D34A6B /* sercfg.c */; };
+		237CC16C14165B2300D34A6B /* settings.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC15F14165B2300D34A6B /* settings.c */; };
+		237CC16E14165B2300D34A6B /* ssh.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC16214165B2300D34A6B /* ssh.c */; };
+		237CC16F14165B2300D34A6B /* sshaes.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC16414165B2300D34A6B /* sshaes.c */; };
+		237CC17014165B2300D34A6B /* ssharcf.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC16514165B2300D34A6B /* ssharcf.c */; };
+		237CC17114165B2300D34A6B /* sshblowf.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC16614165B2300D34A6B /* sshblowf.c */; };
+		237CC17214165B2300D34A6B /* sshbn.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC16714165B2300D34A6B /* sshbn.c */; };
+		237CC17314165B2300D34A6B /* sshcrc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC16814165B2300D34A6B /* sshcrc.c */; };
+		237CC17414165B2300D34A6B /* sshcrcda.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC16914165B2300D34A6B /* sshcrcda.c */; };
+		237CC19414165B5000D34A6B /* sshdes.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC17514165B5000D34A6B /* sshdes.c */; };
+		237CC19514165B5000D34A6B /* sshdh.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC17614165B5000D34A6B /* sshdh.c */; };
+		237CC19614165B5000D34A6B /* sshdss.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC17714165B5000D34A6B /* sshdss.c */; };
+		237CC19714165B5000D34A6B /* sshdssg.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC17814165B5000D34A6B /* sshdssg.c */; };
+		237CC19814165B5000D34A6B /* sshgssc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC17A14165B5000D34A6B /* sshgssc.c */; };
+		237CC19914165B5000D34A6B /* sshmd5.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC17C14165B5000D34A6B /* sshmd5.c */; };
+		237CC19B14165B5000D34A6B /* sshprime.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC17E14165B5000D34A6B /* sshprime.c */; };
+		237CC19C14165B5000D34A6B /* sshpubk.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC17F14165B5000D34A6B /* sshpubk.c */; };
+		237CC19D14165B5000D34A6B /* sshrand.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC18014165B5000D34A6B /* sshrand.c */; };
+		237CC19E14165B5000D34A6B /* sshrsa.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC18114165B5000D34A6B /* sshrsa.c */; };
+		237CC19F14165B5000D34A6B /* sshrsag.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC18214165B5000D34A6B /* sshrsag.c */; };
+		237CC1A014165B5000D34A6B /* sshsh256.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC18314165B5000D34A6B /* sshsh256.c */; };
+		237CC1A114165B5000D34A6B /* sshsh512.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC18414165B5000D34A6B /* sshsh512.c */; };
+		237CC1A214165B5000D34A6B /* sshsha.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC18514165B5000D34A6B /* sshsha.c */; };
+		237CC1A314165B5000D34A6B /* sshzlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC18614165B5000D34A6B /* sshzlib.c */; };
+		237CC1A414165B5000D34A6B /* telnet.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC18814165B5000D34A6B /* telnet.c */; };
+		237CC1A514165B5000D34A6B /* terminal.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC18914165B5000D34A6B /* terminal.c */; };
+		237CC1A614165B5000D34A6B /* testback.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC18B14165B5000D34A6B /* testback.c */; };
+		237CC1A714165B5000D34A6B /* time.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC18C14165B5000D34A6B /* time.c */; };
+		237CC1A814165B5000D34A6B /* timing.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC18D14165B5000D34A6B /* timing.c */; };
+		237CC1A914165B5000D34A6B /* tree234.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC18E14165B5000D34A6B /* tree234.c */; };
+		237CC1AA14165B5000D34A6B /* version.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC19014165B5000D34A6B /* version.c */; };
+		237CC1AB14165B5000D34A6B /* wcwidth.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC19114165B5000D34A6B /* wcwidth.c */; };
+		237CC1AC14165B5000D34A6B /* wildcard.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC19214165B5000D34A6B /* wildcard.c */; };
+		237CC1AD14165B5000D34A6B /* x11fwd.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC19314165B5000D34A6B /* x11fwd.c */; };
+		237CC1DA14165BEE00D34A6B /* ux_x11.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1BA14165BEE00D34A6B /* ux_x11.c */; };
+		237CC1DB14165BEE00D34A6B /* uxagentc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1BB14165BEE00D34A6B /* uxagentc.c */; };
+		237CC1DC14165BEE00D34A6B /* uxcfg.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1BC14165BEE00D34A6B /* uxcfg.c */; };
+		237CC1DE14165BEE00D34A6B /* uxgen.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1BE14165BEE00D34A6B /* uxgen.c */; };
+		237CC1DF14165BEE00D34A6B /* uxgss.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1BF14165BEE00D34A6B /* uxgss.c */; };
+		237CC1E014165BEE00D34A6B /* uxmisc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C014165BEE00D34A6B /* uxmisc.c */; };
+		237CC1E114165BEE00D34A6B /* uxnet.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C114165BEE00D34A6B /* uxnet.c */; };
+		237CC1E214165BEE00D34A6B /* uxnoise.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C214165BEE00D34A6B /* uxnoise.c */; };
+		237CC1E414165BEE00D34A6B /* uxprint.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C414165BEE00D34A6B /* uxprint.c */; };
+		237CC1E514165BEE00D34A6B /* uxproxy.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C514165BEE00D34A6B /* uxproxy.c */; };
+		237CC1E714165BEE00D34A6B /* uxpty.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C714165BEE00D34A6B /* uxpty.c */; };
+		237CC1E914165BEE00D34A6B /* uxsel.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1C914165BEE00D34A6B /* uxsel.c */; };
+		237CC1EA14165BEE00D34A6B /* uxser.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1CA14165BEE00D34A6B /* uxser.c */; };
+		237CC1EC14165BEE00D34A6B /* uxsignal.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1CC14165BEE00D34A6B /* uxsignal.c */; };
+		237CC1ED14165BEE00D34A6B /* uxstore.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1CD14165BEE00D34A6B /* uxstore.c */; };
+		237CC1EE14165BEE00D34A6B /* uxucs.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1CE14165BEE00D34A6B /* uxucs.c */; };
+		237CC1EF14165BEE00D34A6B /* xkeysym.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1CF14165BEE00D34A6B /* xkeysym.c */; };
+		237CC1F014165BEE00D34A6B /* xpmptcfg.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1D014165BEE00D34A6B /* xpmptcfg.c */; };
+		237CC1F314165BEE00D34A6B /* xpmputty.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1D314165BEE00D34A6B /* xpmputty.c */; };
+		237CC2051416649C00D34A6B /* fromucs.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1F71416649C00D34A6B /* fromucs.c */; };
+		237CC2061416649C00D34A6B /* localenc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1F91416649C00D34A6B /* localenc.c */; };
+		237CC2071416649C00D34A6B /* macenc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1FA1416649C00D34A6B /* macenc.c */; };
+		237CC2081416649C00D34A6B /* mimeenc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1FB1416649C00D34A6B /* mimeenc.c */; };
+		237CC20A1416649C00D34A6B /* sbcs.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC1FD1416649C00D34A6B /* sbcs.c */; };
+		237CC20D1416649C00D34A6B /* slookup.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC2001416649C00D34A6B /* slookup.c */; };
+		237CC20E1416649C00D34A6B /* toucs.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC2011416649C00D34A6B /* toucs.c */; };
+		237CC20F1416649C00D34A6B /* utf8.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC2021416649C00D34A6B /* utf8.c */; };
+		237CC2101416649C00D34A6B /* xenc.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC2031416649C00D34A6B /* xenc.c */; };
+		237CC212141664F400D34A6B /* sbcsdat.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC211141664F400D34A6B /* sbcsdat.c */; };
+		237CC2141416C44F00D34A6B /* be_all.c in Sources */ = {isa = PBXBuildFile; fileRef = 237CC2131416C44F00D34A6B /* be_all.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		237CC0E8141659D100D34A6B /* PuTTY.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PuTTY.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		237CC0EC141659D100D34A6B /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		237CC0EF141659D100D34A6B /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		237CC0F0141659D100D34A6B /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		237CC0F1141659D100D34A6B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		237CC10E14165A5C00D34A6B /* info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = SOURCE_ROOT; };
+		237CC10F14165A5C00D34A6B /* osx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = osx.h; sourceTree = SOURCE_ROOT; };
+		237CC11014165A5C00D34A6B /* osxclass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = osxclass.h; sourceTree = SOURCE_ROOT; };
+		237CC11114165A5C00D34A6B /* osxctrls.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = osxctrls.m; sourceTree = SOURCE_ROOT; };
+		237CC11214165A5C00D34A6B /* osxdlg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = osxdlg.m; sourceTree = SOURCE_ROOT; };
+		237CC11314165A5C00D34A6B /* osxmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = osxmain.m; sourceTree = SOURCE_ROOT; };
+		237CC11414165A5C00D34A6B /* osxsel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = osxsel.m; sourceTree = SOURCE_ROOT; };
+		237CC11514165A5C00D34A6B /* osxwin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = osxwin.m; sourceTree = SOURCE_ROOT; };
+		237CC11614165A5C00D34A6B /* putty.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = putty.icns; sourceTree = SOURCE_ROOT; };
+		237CC12014165AFA00D34A6B /* cmdline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmdline.c; path = ../cmdline.c; sourceTree = "<group>"; };
+		237CC12114165AFA00D34A6B /* conf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = conf.c; path = ../conf.c; sourceTree = "<group>"; };
+		237CC12214165AFA00D34A6B /* config.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = config.c; path = ../config.c; sourceTree = "<group>"; };
+		237CC12314165AFA00D34A6B /* cproxy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cproxy.c; path = ../cproxy.c; sourceTree = "<group>"; };
+		237CC12414165AFA00D34A6B /* dialog.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dialog.c; path = ../dialog.c; sourceTree = "<group>"; };
+		237CC12514165AFA00D34A6B /* dialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dialog.h; path = ../dialog.h; sourceTree = "<group>"; };
+		237CC12614165AFA00D34A6B /* import.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = import.c; path = ../import.c; sourceTree = "<group>"; };
+		237CC12714165AFA00D34A6B /* int64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = int64.c; path = ../int64.c; sourceTree = "<group>"; };
+		237CC12814165AFA00D34A6B /* int64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = int64.h; path = ../int64.h; sourceTree = "<group>"; };
+		237CC12914165AFA00D34A6B /* ldisc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ldisc.c; path = ../ldisc.c; sourceTree = "<group>"; };
+		237CC12A14165AFA00D34A6B /* ldisc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ldisc.h; path = ../ldisc.h; sourceTree = "<group>"; };
+		237CC12B14165AFA00D34A6B /* ldiscucs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ldiscucs.c; path = ../ldiscucs.c; sourceTree = "<group>"; };
+		237CC12C14165AFA00D34A6B /* logging.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = logging.c; path = ../logging.c; sourceTree = "<group>"; };
+		237CC12D14165AFA00D34A6B /* minibidi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minibidi.c; path = ../minibidi.c; sourceTree = "<group>"; };
+		237CC12E14165AFA00D34A6B /* misc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = misc.c; path = ../misc.c; sourceTree = "<group>"; };
+		237CC12F14165AFA00D34A6B /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = misc.h; path = ../misc.h; sourceTree = "<group>"; };
+		237CC13014165AFA00D34A6B /* network.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = network.h; path = ../network.h; sourceTree = "<group>"; };
+		237CC13514165AFA00D34A6B /* pgssapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pgssapi.c; path = ../pgssapi.c; sourceTree = "<group>"; };
+		237CC14814165B0D00D34A6B /* pgssapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pgssapi.h; path = ../pgssapi.h; sourceTree = "<group>"; };
+		237CC14914165B0D00D34A6B /* pinger.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pinger.c; path = ../pinger.c; sourceTree = "<group>"; };
+		237CC14A14165B0D00D34A6B /* portfwd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = portfwd.c; path = ../portfwd.c; sourceTree = "<group>"; };
+		237CC14C14165B0D00D34A6B /* proxy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = proxy.c; path = ../proxy.c; sourceTree = "<group>"; };
+		237CC14D14165B0D00D34A6B /* proxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proxy.h; path = ../proxy.h; sourceTree = "<group>"; };
+		237CC15114165B0D00D34A6B /* putty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = putty.h; path = ../putty.h; sourceTree = "<group>"; };
+		237CC15214165B0D00D34A6B /* puttymem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = puttymem.h; path = ../puttymem.h; sourceTree = "<group>"; };
+		237CC15314165B0D00D34A6B /* puttyps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = puttyps.h; path = ../puttyps.h; sourceTree = "<group>"; };
+		237CC15414165B0D00D34A6B /* raw.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = raw.c; path = ../raw.c; sourceTree = "<group>"; };
+		237CC15C14165B2300D34A6B /* resource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = resource.h; path = ../resource.h; sourceTree = "<group>"; };
+		237CC15D14165B2300D34A6B /* rlogin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rlogin.c; path = ../rlogin.c; sourceTree = "<group>"; };
+		237CC15E14165B2300D34A6B /* sercfg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sercfg.c; path = ../sercfg.c; sourceTree = "<group>"; };
+		237CC15F14165B2300D34A6B /* settings.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = settings.c; path = ../settings.c; sourceTree = "<group>"; };
+		237CC16214165B2300D34A6B /* ssh.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ssh.c; path = ../ssh.c; sourceTree = "<group>"; };
+		237CC16314165B2300D34A6B /* ssh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ssh.h; path = ../ssh.h; sourceTree = "<group>"; };
+		237CC16414165B2300D34A6B /* sshaes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshaes.c; path = ../sshaes.c; sourceTree = "<group>"; };
+		237CC16514165B2300D34A6B /* ssharcf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ssharcf.c; path = ../ssharcf.c; sourceTree = "<group>"; };
+		237CC16614165B2300D34A6B /* sshblowf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshblowf.c; path = ../sshblowf.c; sourceTree = "<group>"; };
+		237CC16714165B2300D34A6B /* sshbn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshbn.c; path = ../sshbn.c; sourceTree = "<group>"; };
+		237CC16814165B2300D34A6B /* sshcrc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshcrc.c; path = ../sshcrc.c; sourceTree = "<group>"; };
+		237CC16914165B2300D34A6B /* sshcrcda.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshcrcda.c; path = ../sshcrcda.c; sourceTree = "<group>"; };
+		237CC17514165B5000D34A6B /* sshdes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshdes.c; path = ../sshdes.c; sourceTree = "<group>"; };
+		237CC17614165B5000D34A6B /* sshdh.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshdh.c; path = ../sshdh.c; sourceTree = "<group>"; };
+		237CC17714165B5000D34A6B /* sshdss.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshdss.c; path = ../sshdss.c; sourceTree = "<group>"; };
+		237CC17814165B5000D34A6B /* sshdssg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshdssg.c; path = ../sshdssg.c; sourceTree = "<group>"; };
+		237CC17914165B5000D34A6B /* sshgss.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sshgss.h; path = ../sshgss.h; sourceTree = "<group>"; };
+		237CC17A14165B5000D34A6B /* sshgssc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshgssc.c; path = ../sshgssc.c; sourceTree = "<group>"; };
+		237CC17B14165B5000D34A6B /* sshgssc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sshgssc.h; path = ../sshgssc.h; sourceTree = "<group>"; };
+		237CC17C14165B5000D34A6B /* sshmd5.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshmd5.c; path = ../sshmd5.c; sourceTree = "<group>"; };
+		237CC17E14165B5000D34A6B /* sshprime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshprime.c; path = ../sshprime.c; sourceTree = "<group>"; };
+		237CC17F14165B5000D34A6B /* sshpubk.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshpubk.c; path = ../sshpubk.c; sourceTree = "<group>"; };
+		237CC18014165B5000D34A6B /* sshrand.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshrand.c; path = ../sshrand.c; sourceTree = "<group>"; };
+		237CC18114165B5000D34A6B /* sshrsa.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshrsa.c; path = ../sshrsa.c; sourceTree = "<group>"; };
+		237CC18214165B5000D34A6B /* sshrsag.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshrsag.c; path = ../sshrsag.c; sourceTree = "<group>"; };
+		237CC18314165B5000D34A6B /* sshsh256.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshsh256.c; path = ../sshsh256.c; sourceTree = "<group>"; };
+		237CC18414165B5000D34A6B /* sshsh512.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshsh512.c; path = ../sshsh512.c; sourceTree = "<group>"; };
+		237CC18514165B5000D34A6B /* sshsha.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshsha.c; path = ../sshsha.c; sourceTree = "<group>"; };
+		237CC18614165B5000D34A6B /* sshzlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sshzlib.c; path = ../sshzlib.c; sourceTree = "<group>"; };
+		237CC18714165B5000D34A6B /* storage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = storage.h; path = ../storage.h; sourceTree = "<group>"; };
+		237CC18814165B5000D34A6B /* telnet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = telnet.c; path = ../telnet.c; sourceTree = "<group>"; };
+		237CC18914165B5000D34A6B /* terminal.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = terminal.c; path = ../terminal.c; sourceTree = "<group>"; };
+		237CC18A14165B5000D34A6B /* terminal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = terminal.h; path = ../terminal.h; sourceTree = "<group>"; };
+		237CC18B14165B5000D34A6B /* testback.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = testback.c; path = ../testback.c; sourceTree = "<group>"; };
+		237CC18C14165B5000D34A6B /* time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = time.c; path = ../time.c; sourceTree = "<group>"; };
+		237CC18D14165B5000D34A6B /* timing.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = timing.c; path = ../timing.c; sourceTree = "<group>"; };
+		237CC18E14165B5000D34A6B /* tree234.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tree234.c; path = ../tree234.c; sourceTree = "<group>"; };
+		237CC18F14165B5000D34A6B /* tree234.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tree234.h; path = ../tree234.h; sourceTree = "<group>"; };
+		237CC19014165B5000D34A6B /* version.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = version.c; path = ../version.c; sourceTree = "<group>"; };
+		237CC19114165B5000D34A6B /* wcwidth.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wcwidth.c; path = ../wcwidth.c; sourceTree = "<group>"; };
+		237CC19214165B5000D34A6B /* wildcard.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = wildcard.c; path = ../wildcard.c; sourceTree = "<group>"; };
+		237CC19314165B5000D34A6B /* x11fwd.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = x11fwd.c; path = ../x11fwd.c; sourceTree = "<group>"; };
+		237CC1B914165BEE00D34A6B /* unix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unix.h; sourceTree = "<group>"; };
+		237CC1BA14165BEE00D34A6B /* ux_x11.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ux_x11.c; sourceTree = "<group>"; };
+		237CC1BB14165BEE00D34A6B /* uxagentc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxagentc.c; sourceTree = "<group>"; };
+		237CC1BC14165BEE00D34A6B /* uxcfg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxcfg.c; sourceTree = "<group>"; };
+		237CC1BE14165BEE00D34A6B /* uxgen.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxgen.c; sourceTree = "<group>"; };
+		237CC1BF14165BEE00D34A6B /* uxgss.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxgss.c; sourceTree = "<group>"; };
+		237CC1C014165BEE00D34A6B /* uxmisc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxmisc.c; sourceTree = "<group>"; };
+		237CC1C114165BEE00D34A6B /* uxnet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxnet.c; sourceTree = "<group>"; };
+		237CC1C214165BEE00D34A6B /* uxnoise.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxnoise.c; sourceTree = "<group>"; };
+		237CC1C414165BEE00D34A6B /* uxprint.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxprint.c; sourceTree = "<group>"; };
+		237CC1C514165BEE00D34A6B /* uxproxy.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxproxy.c; sourceTree = "<group>"; };
+		237CC1C714165BEE00D34A6B /* uxpty.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxpty.c; sourceTree = "<group>"; };
+		237CC1C914165BEE00D34A6B /* uxsel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxsel.c; sourceTree = "<group>"; };
+		237CC1CA14165BEE00D34A6B /* uxser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxser.c; sourceTree = "<group>"; };
+		237CC1CC14165BEE00D34A6B /* uxsignal.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxsignal.c; sourceTree = "<group>"; };
+		237CC1CD14165BEE00D34A6B /* uxstore.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxstore.c; sourceTree = "<group>"; };
+		237CC1CE14165BEE00D34A6B /* uxucs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = uxucs.c; sourceTree = "<group>"; };
+		237CC1CF14165BEE00D34A6B /* xkeysym.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xkeysym.c; sourceTree = "<group>"; };
+		237CC1D014165BEE00D34A6B /* xpmptcfg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xpmptcfg.c; sourceTree = "<group>"; };
+		237CC1D314165BEE00D34A6B /* xpmputty.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xpmputty.c; sourceTree = "<group>"; };
+		237CC1F51416649C00D34A6B /* charset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = charset.h; sourceTree = "<group>"; };
+		237CC1F61416649C00D34A6B /* enum.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = enum.c; sourceTree = "<group>"; };
+		237CC1F71416649C00D34A6B /* fromucs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fromucs.c; sourceTree = "<group>"; };
+		237CC1F81416649C00D34A6B /* internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = internal.h; sourceTree = "<group>"; };
+		237CC1F91416649C00D34A6B /* localenc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = localenc.c; sourceTree = "<group>"; };
+		237CC1FA1416649C00D34A6B /* macenc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = macenc.c; sourceTree = "<group>"; };
+		237CC1FB1416649C00D34A6B /* mimeenc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mimeenc.c; sourceTree = "<group>"; };
+		237CC1FD1416649C00D34A6B /* sbcs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sbcs.c; sourceTree = "<group>"; };
+		237CC2001416649C00D34A6B /* slookup.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = slookup.c; sourceTree = "<group>"; };
+		237CC2011416649C00D34A6B /* toucs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = toucs.c; sourceTree = "<group>"; };
+		237CC2021416649C00D34A6B /* utf8.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utf8.c; sourceTree = "<group>"; };
+		237CC2031416649C00D34A6B /* xenc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xenc.c; sourceTree = "<group>"; };
+		237CC211141664F400D34A6B /* sbcsdat.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sbcsdat.c; sourceTree = "<group>"; };
+		237CC2131416C44F00D34A6B /* be_all.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = be_all.c; path = ../be_all.c; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		237CC0E5141659D100D34A6B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				237CC0ED141659D100D34A6B /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		237CC0DD141659D100D34A6B = {
+			isa = PBXGroup;
+			children = (
+				237CC1F41416649C00D34A6B /* putty-charset */,
+				237CC1B014165BEE00D34A6B /* putty-unix */,
+				237CC11E14165AD500D34A6B /* putty */,
+				237CC0F2141659D100D34A6B /* putty-macosx */,
+				237CC0EB141659D100D34A6B /* Frameworks */,
+				237CC0E9141659D100D34A6B /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		237CC0E9141659D100D34A6B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				237CC0E8141659D100D34A6B /* PuTTY.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		237CC0EB141659D100D34A6B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				237CC0EC141659D100D34A6B /* Cocoa.framework */,
+				237CC0EE141659D100D34A6B /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		237CC0EE141659D100D34A6B /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				237CC0EF141659D100D34A6B /* AppKit.framework */,
+				237CC0F0141659D100D34A6B /* CoreData.framework */,
+				237CC0F1141659D100D34A6B /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		237CC0F2141659D100D34A6B /* putty-macosx */ = {
+			isa = PBXGroup;
+			children = (
+				237CC10E14165A5C00D34A6B /* info.plist */,
+				237CC10F14165A5C00D34A6B /* osx.h */,
+				237CC11014165A5C00D34A6B /* osxclass.h */,
+				237CC11114165A5C00D34A6B /* osxctrls.m */,
+				237CC11214165A5C00D34A6B /* osxdlg.m */,
+				237CC11314165A5C00D34A6B /* osxmain.m */,
+				237CC11414165A5C00D34A6B /* osxsel.m */,
+				237CC11514165A5C00D34A6B /* osxwin.m */,
+				237CC11614165A5C00D34A6B /* putty.icns */,
+			);
+			name = "putty-macosx";
+			path = PuTTY;
+			sourceTree = "<group>";
+		};
+		237CC11E14165AD500D34A6B /* putty */ = {
+			isa = PBXGroup;
+			children = (
+				237CC2131416C44F00D34A6B /* be_all.c */,
+				237CC17514165B5000D34A6B /* sshdes.c */,
+				237CC17614165B5000D34A6B /* sshdh.c */,
+				237CC17714165B5000D34A6B /* sshdss.c */,
+				237CC17814165B5000D34A6B /* sshdssg.c */,
+				237CC17914165B5000D34A6B /* sshgss.h */,
+				237CC17A14165B5000D34A6B /* sshgssc.c */,
+				237CC17B14165B5000D34A6B /* sshgssc.h */,
+				237CC17C14165B5000D34A6B /* sshmd5.c */,
+				237CC17E14165B5000D34A6B /* sshprime.c */,
+				237CC17F14165B5000D34A6B /* sshpubk.c */,
+				237CC18014165B5000D34A6B /* sshrand.c */,
+				237CC18114165B5000D34A6B /* sshrsa.c */,
+				237CC18214165B5000D34A6B /* sshrsag.c */,
+				237CC18314165B5000D34A6B /* sshsh256.c */,
+				237CC18414165B5000D34A6B /* sshsh512.c */,
+				237CC18514165B5000D34A6B /* sshsha.c */,
+				237CC18614165B5000D34A6B /* sshzlib.c */,
+				237CC18714165B5000D34A6B /* storage.h */,
+				237CC18814165B5000D34A6B /* telnet.c */,
+				237CC18914165B5000D34A6B /* terminal.c */,
+				237CC18A14165B5000D34A6B /* terminal.h */,
+				237CC18B14165B5000D34A6B /* testback.c */,
+				237CC18C14165B5000D34A6B /* time.c */,
+				237CC18D14165B5000D34A6B /* timing.c */,
+				237CC18E14165B5000D34A6B /* tree234.c */,
+				237CC18F14165B5000D34A6B /* tree234.h */,
+				237CC19014165B5000D34A6B /* version.c */,
+				237CC19114165B5000D34A6B /* wcwidth.c */,
+				237CC19214165B5000D34A6B /* wildcard.c */,
+				237CC19314165B5000D34A6B /* x11fwd.c */,
+				237CC15C14165B2300D34A6B /* resource.h */,
+				237CC15D14165B2300D34A6B /* rlogin.c */,
+				237CC15E14165B2300D34A6B /* sercfg.c */,
+				237CC15F14165B2300D34A6B /* settings.c */,
+				237CC16214165B2300D34A6B /* ssh.c */,
+				237CC16314165B2300D34A6B /* ssh.h */,
+				237CC16414165B2300D34A6B /* sshaes.c */,
+				237CC16514165B2300D34A6B /* ssharcf.c */,
+				237CC16614165B2300D34A6B /* sshblowf.c */,
+				237CC16714165B2300D34A6B /* sshbn.c */,
+				237CC16814165B2300D34A6B /* sshcrc.c */,
+				237CC16914165B2300D34A6B /* sshcrcda.c */,
+				237CC14814165B0D00D34A6B /* pgssapi.h */,
+				237CC14914165B0D00D34A6B /* pinger.c */,
+				237CC14A14165B0D00D34A6B /* portfwd.c */,
+				237CC14C14165B0D00D34A6B /* proxy.c */,
+				237CC14D14165B0D00D34A6B /* proxy.h */,
+				237CC15114165B0D00D34A6B /* putty.h */,
+				237CC15214165B0D00D34A6B /* puttymem.h */,
+				237CC15314165B0D00D34A6B /* puttyps.h */,
+				237CC15414165B0D00D34A6B /* raw.c */,
+				237CC12014165AFA00D34A6B /* cmdline.c */,
+				237CC12114165AFA00D34A6B /* conf.c */,
+				237CC12214165AFA00D34A6B /* config.c */,
+				237CC12314165AFA00D34A6B /* cproxy.c */,
+				237CC12414165AFA00D34A6B /* dialog.c */,
+				237CC12514165AFA00D34A6B /* dialog.h */,
+				237CC12614165AFA00D34A6B /* import.c */,
+				237CC12714165AFA00D34A6B /* int64.c */,
+				237CC12814165AFA00D34A6B /* int64.h */,
+				237CC12914165AFA00D34A6B /* ldisc.c */,
+				237CC12A14165AFA00D34A6B /* ldisc.h */,
+				237CC12B14165AFA00D34A6B /* ldiscucs.c */,
+				237CC12C14165AFA00D34A6B /* logging.c */,
+				237CC12D14165AFA00D34A6B /* minibidi.c */,
+				237CC12E14165AFA00D34A6B /* misc.c */,
+				237CC12F14165AFA00D34A6B /* misc.h */,
+				237CC13014165AFA00D34A6B /* network.h */,
+				237CC13514165AFA00D34A6B /* pgssapi.c */,
+			);
+			name = putty;
+			sourceTree = "<group>";
+		};
+		237CC1B014165BEE00D34A6B /* putty-unix */ = {
+			isa = PBXGroup;
+			children = (
+				237CC1B914165BEE00D34A6B /* unix.h */,
+				237CC1BA14165BEE00D34A6B /* ux_x11.c */,
+				237CC1BB14165BEE00D34A6B /* uxagentc.c */,
+				237CC1BC14165BEE00D34A6B /* uxcfg.c */,
+				237CC1BE14165BEE00D34A6B /* uxgen.c */,
+				237CC1BF14165BEE00D34A6B /* uxgss.c */,
+				237CC1C014165BEE00D34A6B /* uxmisc.c */,
+				237CC1C114165BEE00D34A6B /* uxnet.c */,
+				237CC1C214165BEE00D34A6B /* uxnoise.c */,
+				237CC1C414165BEE00D34A6B /* uxprint.c */,
+				237CC1C514165BEE00D34A6B /* uxproxy.c */,
+				237CC1C714165BEE00D34A6B /* uxpty.c */,
+				237CC1C914165BEE00D34A6B /* uxsel.c */,
+				237CC1CA14165BEE00D34A6B /* uxser.c */,
+				237CC1CC14165BEE00D34A6B /* uxsignal.c */,
+				237CC1CD14165BEE00D34A6B /* uxstore.c */,
+				237CC1CE14165BEE00D34A6B /* uxucs.c */,
+				237CC1CF14165BEE00D34A6B /* xkeysym.c */,
+				237CC1D014165BEE00D34A6B /* xpmptcfg.c */,
+				237CC1D314165BEE00D34A6B /* xpmputty.c */,
+			);
+			name = "putty-unix";
+			path = ../unix;
+			sourceTree = "<group>";
+		};
+		237CC1F41416649C00D34A6B /* putty-charset */ = {
+			isa = PBXGroup;
+			children = (
+				237CC211141664F400D34A6B /* sbcsdat.c */,
+				237CC1F51416649C00D34A6B /* charset.h */,
+				237CC1F61416649C00D34A6B /* enum.c */,
+				237CC1F71416649C00D34A6B /* fromucs.c */,
+				237CC1F81416649C00D34A6B /* internal.h */,
+				237CC1F91416649C00D34A6B /* localenc.c */,
+				237CC1FA1416649C00D34A6B /* macenc.c */,
+				237CC1FB1416649C00D34A6B /* mimeenc.c */,
+				237CC1FD1416649C00D34A6B /* sbcs.c */,
+				237CC2001416649C00D34A6B /* slookup.c */,
+				237CC2011416649C00D34A6B /* toucs.c */,
+				237CC2021416649C00D34A6B /* utf8.c */,
+				237CC2031416649C00D34A6B /* xenc.c */,
+			);
+			name = "putty-charset";
+			path = ../charset;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		237CC0E7141659D100D34A6B /* PuTTY */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 237CC106141659D200D34A6B /* Build configuration list for PBXNativeTarget "PuTTY" */;
+			buildPhases = (
+				237CC0E4141659D100D34A6B /* Sources */,
+				237CC0E5141659D100D34A6B /* Frameworks */,
+				237CC0E6141659D100D34A6B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PuTTY;
+			productName = PuTTY;
+			productReference = 237CC0E8141659D100D34A6B /* PuTTY.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		237CC0DF141659D100D34A6B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				ORGANIZATIONNAME = "Albert Zeyer";
+			};
+			buildConfigurationList = 237CC0E2141659D100D34A6B /* Build configuration list for PBXProject "PuTTY" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 237CC0DD141659D100D34A6B;
+			productRefGroup = 237CC0E9141659D100D34A6B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				237CC0E7141659D100D34A6B /* PuTTY */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		237CC0E6141659D100D34A6B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				237CC11714165A5C00D34A6B /* info.plist in Resources */,
+				237CC11D14165A5C00D34A6B /* putty.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		237CC0E4141659D100D34A6B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				237CC11814165A5C00D34A6B /* osxctrls.m in Sources */,
+				237CC11914165A5C00D34A6B /* osxdlg.m in Sources */,
+				237CC11A14165A5C00D34A6B /* osxmain.m in Sources */,
+				237CC11B14165A5C00D34A6B /* osxsel.m in Sources */,
+				237CC11C14165A5C00D34A6B /* osxwin.m in Sources */,
+				237CC13714165AFA00D34A6B /* cmdline.c in Sources */,
+				237CC13814165AFA00D34A6B /* conf.c in Sources */,
+				237CC13914165AFA00D34A6B /* config.c in Sources */,
+				237CC13A14165AFA00D34A6B /* cproxy.c in Sources */,
+				237CC13B14165AFA00D34A6B /* dialog.c in Sources */,
+				237CC13C14165AFA00D34A6B /* import.c in Sources */,
+				237CC13D14165AFA00D34A6B /* int64.c in Sources */,
+				237CC13E14165AFA00D34A6B /* ldisc.c in Sources */,
+				237CC13F14165AFA00D34A6B /* ldiscucs.c in Sources */,
+				237CC14014165AFA00D34A6B /* logging.c in Sources */,
+				237CC14114165AFA00D34A6B /* minibidi.c in Sources */,
+				237CC14214165AFA00D34A6B /* misc.c in Sources */,
+				237CC14714165AFA00D34A6B /* pgssapi.c in Sources */,
+				237CC15514165B0D00D34A6B /* pinger.c in Sources */,
+				237CC15614165B0D00D34A6B /* portfwd.c in Sources */,
+				237CC15814165B0D00D34A6B /* proxy.c in Sources */,
+				237CC15B14165B0D00D34A6B /* raw.c in Sources */,
+				237CC16A14165B2300D34A6B /* rlogin.c in Sources */,
+				237CC16B14165B2300D34A6B /* sercfg.c in Sources */,
+				237CC16C14165B2300D34A6B /* settings.c in Sources */,
+				237CC16E14165B2300D34A6B /* ssh.c in Sources */,
+				237CC16F14165B2300D34A6B /* sshaes.c in Sources */,
+				237CC17014165B2300D34A6B /* ssharcf.c in Sources */,
+				237CC17114165B2300D34A6B /* sshblowf.c in Sources */,
+				237CC17214165B2300D34A6B /* sshbn.c in Sources */,
+				237CC17314165B2300D34A6B /* sshcrc.c in Sources */,
+				237CC17414165B2300D34A6B /* sshcrcda.c in Sources */,
+				237CC19414165B5000D34A6B /* sshdes.c in Sources */,
+				237CC19514165B5000D34A6B /* sshdh.c in Sources */,
+				237CC19614165B5000D34A6B /* sshdss.c in Sources */,
+				237CC19714165B5000D34A6B /* sshdssg.c in Sources */,
+				237CC19814165B5000D34A6B /* sshgssc.c in Sources */,
+				237CC19914165B5000D34A6B /* sshmd5.c in Sources */,
+				237CC19B14165B5000D34A6B /* sshprime.c in Sources */,
+				237CC19C14165B5000D34A6B /* sshpubk.c in Sources */,
+				237CC19D14165B5000D34A6B /* sshrand.c in Sources */,
+				237CC19E14165B5000D34A6B /* sshrsa.c in Sources */,
+				237CC19F14165B5000D34A6B /* sshrsag.c in Sources */,
+				237CC1A014165B5000D34A6B /* sshsh256.c in Sources */,
+				237CC1A114165B5000D34A6B /* sshsh512.c in Sources */,
+				237CC1A214165B5000D34A6B /* sshsha.c in Sources */,
+				237CC1A314165B5000D34A6B /* sshzlib.c in Sources */,
+				237CC1A414165B5000D34A6B /* telnet.c in Sources */,
+				237CC1A514165B5000D34A6B /* terminal.c in Sources */,
+				237CC1A614165B5000D34A6B /* testback.c in Sources */,
+				237CC1A714165B5000D34A6B /* time.c in Sources */,
+				237CC1A814165B5000D34A6B /* timing.c in Sources */,
+				237CC1A914165B5000D34A6B /* tree234.c in Sources */,
+				237CC1AA14165B5000D34A6B /* version.c in Sources */,
+				237CC1AB14165B5000D34A6B /* wcwidth.c in Sources */,
+				237CC1AC14165B5000D34A6B /* wildcard.c in Sources */,
+				237CC1AD14165B5000D34A6B /* x11fwd.c in Sources */,
+				237CC1DA14165BEE00D34A6B /* ux_x11.c in Sources */,
+				237CC1DB14165BEE00D34A6B /* uxagentc.c in Sources */,
+				237CC1DC14165BEE00D34A6B /* uxcfg.c in Sources */,
+				237CC1DE14165BEE00D34A6B /* uxgen.c in Sources */,
+				237CC1DF14165BEE00D34A6B /* uxgss.c in Sources */,
+				237CC1E014165BEE00D34A6B /* uxmisc.c in Sources */,
+				237CC1E114165BEE00D34A6B /* uxnet.c in Sources */,
+				237CC1E214165BEE00D34A6B /* uxnoise.c in Sources */,
+				237CC1E414165BEE00D34A6B /* uxprint.c in Sources */,
+				237CC1E514165BEE00D34A6B /* uxproxy.c in Sources */,
+				237CC1E714165BEE00D34A6B /* uxpty.c in Sources */,
+				237CC1E914165BEE00D34A6B /* uxsel.c in Sources */,
+				237CC1EA14165BEE00D34A6B /* uxser.c in Sources */,
+				237CC1EC14165BEE00D34A6B /* uxsignal.c in Sources */,
+				237CC1ED14165BEE00D34A6B /* uxstore.c in Sources */,
+				237CC1EE14165BEE00D34A6B /* uxucs.c in Sources */,
+				237CC1EF14165BEE00D34A6B /* xkeysym.c in Sources */,
+				237CC1F014165BEE00D34A6B /* xpmptcfg.c in Sources */,
+				237CC1F314165BEE00D34A6B /* xpmputty.c in Sources */,
+				237CC2051416649C00D34A6B /* fromucs.c in Sources */,
+				237CC2061416649C00D34A6B /* localenc.c in Sources */,
+				237CC2071416649C00D34A6B /* macenc.c in Sources */,
+				237CC2081416649C00D34A6B /* mimeenc.c in Sources */,
+				237CC20A1416649C00D34A6B /* sbcs.c in Sources */,
+				237CC20D1416649C00D34A6B /* slookup.c in Sources */,
+				237CC20E1416649C00D34A6B /* toucs.c in Sources */,
+				237CC20F1416649C00D34A6B /* utf8.c in Sources */,
+				237CC2101416649C00D34A6B /* xenc.c in Sources */,
+				237CC212141664F400D34A6B /* sbcsdat.c in Sources */,
+				237CC2141416C44F00D34A6B /* be_all.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		237CC104141659D200D34A6B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = MACOSX;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		237CC105141659D200D34A6B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = MACOSX;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		237CC107141659D200D34A6B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = info.plist;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		237CC108141659D200D34A6B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = info.plist;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		237CC0E2141659D100D34A6B /* Build configuration list for PBXProject "PuTTY" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				237CC104141659D200D34A6B /* Debug */,
+				237CC105141659D200D34A6B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		237CC106141659D200D34A6B /* Build configuration list for PBXNativeTarget "PuTTY" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				237CC107141659D200D34A6B /* Debug */,
+				237CC108141659D200D34A6B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 237CC0DF141659D100D34A6B /* Project object */;
+}

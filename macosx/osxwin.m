@@ -8,7 +8,6 @@
 #include "osxclass.h"
 
 /* Colours come in two flavours: configurable, and xterm-extended. */
-#define NCFGCOLOURS (lenof(((Config *)0)->colours))
 #define NEXTCOLOURS 240 /* 216 colour-cube plus 24 shades of grey */
 #define NALLCOLOURS (NCFGCOLOURS + NEXTCOLOURS)
 
@@ -24,7 +23,7 @@
     NSFont *font;
     NSImage *image;
     Terminal *term;
-    Config cfg;
+    Conf* cfg;
     NSColor *colours[NALLCOLOURS];
     float fw, fasc, fdesc, fh;
 }
@@ -39,7 +38,7 @@
 {
     return YES;
 }
-- (id)initWithTerminal:(Terminal *)aTerm config:(Config)aCfg
+- (id)initWithTerminal:(Terminal *)aTerm config:(Conf*)aCfg
 {
     float w, h;
 
@@ -109,11 +108,11 @@
 	nfg = nbg;
 	nbg = t;
     }
-    if (cfg.bold_colour && (attr & ATTR_BOLD)) {
+    if (conf_get_int(cfg, CONF_bold_colour) && (attr & ATTR_BOLD)) {
 	if (nfg < 16) nfg |= 8;
 	else if (nfg >= 256) nfg |= 1;
     }
-    if (cfg.bold_colour && (attr & ATTR_BLINK)) {
+    if (conf_get_int(cfg, CONF_bold_colour) && (attr & ATTR_BLINK)) {
 	if (nbg < 16) nbg |= 8;
 	else if (nbg >= 256) nbg |= 1;
     }
@@ -203,7 +202,7 @@
 @end
 
 @implementation SessionWindow
-- (id)initWithConfig:(Config)aCfg
+- (id)initWithConfig:(Conf*)aCfg
 {
     NSRect rect = { {0,0}, {0,0} };
 
@@ -211,12 +210,12 @@
 
     cfg = aCfg;			       /* structure copy */
 
-    init_ucs(&ucsdata, cfg.line_codepage, cfg.utf8_override,
-	     CS_UTF8, cfg.vtmode);
-    term = term_init(&cfg, &ucsdata, self);
-    logctx = log_init(self, &cfg);
+    init_ucs(&ucsdata, conf_get_str(cfg, CONF_line_codepage), conf_get_int(cfg, CONF_utf8_override),
+	     CS_UTF8, conf_get_int(cfg, CONF_vtmode));
+    term = term_init(cfg, &ucsdata, self);
+    logctx = log_init(self, cfg);
     term_provide_logctx(term, logctx);
-    term_size(term, cfg.height, cfg.width, cfg.savelines);
+    term_size(term, conf_get_int(cfg, CONF_height), conf_get_int(cfg, CONF_width), conf_get_int(cfg, CONF_savelines));
 
     termview = [[[TerminalView alloc] initWithTerminal:term config:cfg]
 		autorelease];
@@ -226,21 +225,21 @@
      */
     rect = [termview frame];
     rect.origin = NSMakePoint(0,0);
-    rect.size.width += 2 * cfg.window_border;
-    rect.size.height += 2 * cfg.window_border;
+    rect.size.width += 2 * conf_get_int(cfg, CONF_window_border);
+    rect.size.height += 2 * conf_get_int(cfg, CONF_window_border);
 
     /*
      * Set up a backend.
      */
-    back = backend_from_proto(cfg.protocol);
+    back = backend_from_proto(conf_get_int(cfg, CONF_protocol));
     if (!back)
 	back = &pty_backend;
 
     {
 	const char *error;
 	char *realhost = NULL;
-	error = back->init(self, &backhandle, &cfg, cfg.host, cfg.port,
-			   &realhost, cfg.tcp_nodelay, cfg.tcp_keepalives);
+	error = back->init(self, &backhandle, cfg, conf_get_str(cfg, CONF_host), conf_get_int(cfg, CONF_port),
+			   &realhost, conf_get_int(cfg, CONF_tcp_nodelay), conf_get_int(cfg, CONF_tcp_keepalives));
 	if (error) {
 	    fatalbox("%s\n", error);   /* FIXME: connection_fatal at worst */
 	}
@@ -255,7 +254,7 @@
      * the terminal _and_ the backend, since it needs to be passed
      * pointers to both.)
      */
-    ldisc = ldisc_create(&cfg, term, back, backhandle, self);
+    ldisc = ldisc_create(cfg, term, back, backhandle, self);
 
     /*
      * FIXME: Set up a scrollbar.
@@ -274,7 +273,7 @@
      * Put the terminal view in the window.
      */
     rect = [termview frame];
-    rect.origin = NSMakePoint(cfg.window_border, cfg.window_border);
+    rect.origin = NSMakePoint(conf_get_int(cfg, CONF_window_border), conf_get_int(cfg, CONF_window_border));
     [termview setFrame:rect];
     [[self contentView] addSubview:termview];
 
@@ -337,9 +336,9 @@
     [termview doText:text len:len x:x y:y attr:attr lattr:lattr];
 }
 
-- (Config *)cfg
+- (Conf *)cfg
 {
-    return &cfg;
+    return cfg;
 }
 
 - (void)keyDown:(NSEvent *)ev
@@ -430,13 +429,13 @@
 
     /* We don't let MacOS tell us what Backspace is! We know better. */
     if (cm == 0x7F && !(m & NSShiftKeyMask)) {
-	coutput[1] = cfg.bksp_is_delete ? '\x7F' : '\x08';
+	coutput[1] = conf_get_int(cfg, CONF_bksp_is_delete) ? '\x7F' : '\x08';
 	end = 2;
 	use_coutput = special = TRUE;
     }
     /* For Shift Backspace, do opposite of what is configured. */
     if (cm == 0x7F && (m & NSShiftKeyMask)) {
-	coutput[1] = cfg.bksp_is_delete ? '\x08' : '\x7F';
+	coutput[1] = conf_get_int(cfg, CONF_bksp_is_delete) ? '\x08' : '\x7F';
 	end = 2;
 	use_coutput = special = TRUE;
     }
@@ -453,7 +452,7 @@
     /*
      * NetHack keypad mode.
      */
-    if (cfg.nethack_keypad && (m & NSNumericPadKeyMask)) {
+    if (conf_get_int(cfg, CONF_nethack_keypad) && (m & NSNumericPadKeyMask)) {
 	wchar_t *keys = NULL;
 	switch (cm) {
 	  case '1': keys = L"bB"; break;
@@ -479,7 +478,7 @@
     /*
      * Application keypad mode.
      */
-    if (term->app_keypad_keys && !cfg.no_applic_k &&
+    if (term->app_keypad_keys && !conf_get_int(cfg, CONF_no_applic_k) &&
 	(m & NSNumericPadKeyMask)) {
 	int xkey = 0;
 	switch (cm) {
@@ -621,7 +620,7 @@
 	    break;
 	}
 	/* Reorder edit keys to physical order */
-	if (cfg.funky_type == FUNKY_VT400 && code <= 6)
+	if (conf_get_int(cfg, CONF_funky_type) == FUNKY_VT400 && code <= 6)
 	    code = "\0\2\1\4\5\3\6"[code];
 
 	if (term->vt52_mode && code > 0 && code <= 6) {
@@ -630,7 +629,7 @@
 	    goto done;
 	}
 
-	if (cfg.funky_type == FUNKY_SCO &&     /* SCO function keys */
+	if (conf_get_int(cfg, CONF_funky_type) == FUNKY_SCO &&     /* SCO function keys */
 	    code >= 11 && code <= 34) {
 	    char codes[] = "MNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@[\\]^_`{";
 	    int index = 0;
@@ -655,7 +654,7 @@
 	    output[end++] = codes[index];
 	    goto done;
 	}
-	if (cfg.funky_type == FUNKY_SCO &&     /* SCO small keypad */
+	if (conf_get_int(cfg, CONF_funky_type) == FUNKY_SCO &&     /* SCO small keypad */
 	    code >= 1 && code <= 6) {
 	    char codes[] = "HL.FIG";
 	    if (code == 3) {
@@ -668,7 +667,7 @@
 	    }
 	    goto done;
 	}
-	if ((term->vt52_mode || cfg.funky_type == FUNKY_VT100P) &&
+	if ((term->vt52_mode || conf_get_int(cfg, CONF_funky_type) == FUNKY_VT100P) &&
 	    code >= 11 && code <= 24) {
 	    int offt = 0;
 	    if (code > 15)
@@ -685,14 +684,14 @@
 	    }
 	    goto done;
 	}
-	if (cfg.funky_type == FUNKY_LINUX && code >= 11 && code <= 15) {
+	if (conf_get_int(cfg, CONF_funky_type) == FUNKY_LINUX && code >= 11 && code <= 15) {
 	    output[end++] = '\033';
 	    output[end++] = '[';
 	    output[end++] = '[';	
 	    output[end++] = code + 'A' - 11;
 	    goto done;
 	}
-	if (cfg.funky_type == FUNKY_XTERM && code >= 11 && code <= 14) {
+	if (conf_get_int(cfg, CONF_funky_type) == FUNKY_XTERM && code >= 11 && code <= 14) {
 	    if (term->vt52_mode) {
 		output[end++] = '\033';
 		output[end++] = code + 'P' - 11;
@@ -703,7 +702,7 @@
 	    }
 	    goto done;
 	}
-	if (cfg.rxvt_homeend && (code == 1 || code == 4)) {
+	if (conf_get_int(cfg, CONF_rxvt_homeend) && (code == 1 || code == 4)) {
 	    if (code == 1) {
 		output[end++] = '\033';
 		output[end++] = '[';
@@ -863,8 +862,8 @@
 	back = NULL;
 	//FIXME: update specials menu;
     }
-    if (cfg.close_on_exit == FORCE_ON ||
-	(cfg.close_on_exit == AUTO && clean))
+    if (conf_get_int(cfg, CONF_close_on_exit) == FORCE_ON ||
+	(conf_get_int(cfg, CONF_close_on_exit) == AUTO && clean))
 	[self close];
     // FIXME: else show restart menu item
 }
@@ -969,7 +968,7 @@ void palette_set(void *frontend, int n, int r, int g, int b)
 void palette_reset(void *frontend)
 {
     SessionWindow *win = (SessionWindow *)frontend;
-    Config *cfg = [win cfg];
+    Conf *cfg = [win cfg];
 
     /* This maps colour indices in cfg to those used in colours[]. */
     static const int ww[] = {
@@ -981,8 +980,8 @@ void palette_reset(void *frontend)
     int i;
 
     for (i = 0; i < NCFGCOLOURS; i++) {
-	[win setColour:ww[i] r:cfg->colours[i][0]/255.0
-	 g:cfg->colours[i][1]/255.0 b:cfg->colours[i][2]/255.0];
+	[win setColour:ww[i] r:conf_get_int_int(cfg, CONF_colours, i*3 + 0)/255.0
+	 g:conf_get_int_int(cfg, CONF_colours, i*3 + 1)/255.0 b:conf_get_int_int(cfg, CONF_colours, i*3 + 2)/255.0];
     }
 
     for (i = 0; i < NEXTCOLOURS; i++) {
@@ -1041,7 +1040,7 @@ void do_cursor(Context ctx, int x, int y, wchar_t *text, int len,
 	       unsigned long attr, int lattr)
 {
     SessionWindow *win = (SessionWindow *)ctx;
-    Config *cfg = [win cfg];
+    Conf *cfg = [win cfg];
     int active, passive;
 
     if (attr & TATTR_PASCURS) {
@@ -1049,7 +1048,7 @@ void do_cursor(Context ctx, int x, int y, wchar_t *text, int len,
 	passive = 1;
     } else
 	passive = 0;
-    if ((attr & TATTR_ACTCURS) && cfg->cursor_type != 0) {
+    if ((attr & TATTR_ACTCURS) && conf_get_int(cfg, CONF_cursor_type) != 0) {
 	attr &= ~TATTR_ACTCURS;
         active = 1;
     } else

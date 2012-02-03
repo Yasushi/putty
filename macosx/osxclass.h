@@ -18,7 +18,7 @@
 }
 - (void)newSessionConfig:(id)sender;
 - (void)newTerminal:(id)sender;
-- (void)newSessionWithConfig:(id)cfg;
+- (void)newSessionWithConfig:(NSValue*)cfg;
 - (void)setTimer:(long)next;
 @end
 extern AppController *controller;
@@ -43,7 +43,7 @@ struct alert_queue {
     TerminalView *termview;
     struct unicode_data ucsdata;
     void *logctx;
-    Config cfg;
+    Conf* cfg;
     void *ldisc;
     Backend *back;
     void *backhandle;
@@ -57,10 +57,10 @@ struct alert_queue {
     /* This queues future alerts that need to be shown. */
     struct alert_queue *alert_qhead, *alert_qtail;
 }
-- (id)initWithConfig:(Config)cfg;
+- (id)initWithConfig:(Conf*)cfg;
 - (void)drawStartFinish:(BOOL)start;
 - (void)setColour:(int)n r:(float)r g:(float)g b:(float)b;
-- (Config *)cfg;
+- (Conf *)cfg;
 - (void)doText:(wchar_t *)text len:(int)len x:(int)x y:(int)y
     attr:(unsigned long)attr lattr:(int)lattr;
 - (int)fromBackend:(const char *)data len:(int)len isStderr:(int)is_stderr;
@@ -83,9 +83,9 @@ struct alert_queue {
     NSOutlineView *treeview;
     struct controlbox *ctrlbox;
     void *dv;
-    Config cfg;
+    Conf* cfg;
 }
-- (id)initWithConfig:(Config)cfg;
+- (id)initWithConfig:(Conf*)cfg;
 @end
 
 /*
@@ -96,7 +96,7 @@ struct alert_queue {
 #define HSPACING 12		       /* needed in osxdlg.m and osxctrls.m */
 #define VSPACING 8
 
-void *fe_dlg_init(void *data, NSWindow *window, NSObject *target, SEL action);
+void *fe_dlg_init(Conf *data, NSWindow *window, NSObject *target, SEL action);
 void fe_dlg_free(void *dv);
 void create_ctrls(void *dv, NSView *parent, struct controlset *s,
 		  int *minw, int *minh);

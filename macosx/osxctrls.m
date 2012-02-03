@@ -221,7 +221,7 @@ struct fe_dlg {
     tree234 *byctrl;
     tree234 *bywidget;
     tree234 *boxes;
-    void *data;			       /* passed to portable side */
+    Conf *data;			       /* passed to portable side */
     Receiver *rec;
 };
 
@@ -394,7 +394,7 @@ static struct fe_ctrl *find_widget(struct fe_dlg *d, id widget)
     return b ? b->c : NULL;
 }
 
-void *fe_dlg_init(void *data, NSWindow *window, NSObject *target, SEL action)
+void *fe_dlg_init(Conf *data, NSWindow *window, NSObject *target, SEL action)
 {
     struct fe_dlg *d;
 
@@ -698,8 +698,11 @@ void create_ctrls(void *dv, NSView *parent, struct controlset *s,
 		[tf setSelectable:NO];
 		[tf setBordered:NO];
 		[tf setDrawsBackground:NO];
-		[tf setStringValue:[NSString
-				    stringWithCString:ctrl->generic.label]];
+		if(ctrl->generic.label)
+			[tf setStringValue:[NSString stringWithCString:ctrl->generic.label]];
+		else
+			// WARNING: is this valid?
+			[tf setStringValue:@"?unnamed?"];			
 		[tf sizeToFit];
 		rect = [tf frame];
 		[parent addSubview:tf];
@@ -1564,7 +1567,7 @@ void dlg_editbox_set(union control *ctrl, void *dv, char const *text)
     }
 }
 
-void dlg_editbox_get(union control *ctrl, void *dv, char *buffer, int length)
+char* dlg_editbox_get(union control *ctrl, void *dv)
 {
     struct fe_dlg *d = (struct fe_dlg *)dv;
     struct fe_ctrl *c = fe_ctrl_byctrl(d, ctrl);
@@ -1580,7 +1583,7 @@ void dlg_editbox_get(union control *ctrl, void *dv, char *buffer, int length)
 	str = @"";
 
     /* The length parameter to this method doesn't include a trailing NUL */
-    [str getCString:buffer maxLength:length-1];
+    return strdup([str UTF8String]);
 }
 
 void dlg_listbox_clear(union control *ctrl, void *dv)
